@@ -1,0 +1,24 @@
+package com.lbg.ethereum.DTOs.Transaction;
+
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+
+public class TransactionRecieptDo {
+    private String message;
+    private TransactionReceipt transactionReceipt;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public TransactionReceipt getTransactionReceipt() {
+        return transactionReceipt;
+    }
+
+    public void setTransactionReceipt(TransactionReceipt transactionReceipt) {
+        this.transactionReceipt = transactionReceipt;
+    }
+}
