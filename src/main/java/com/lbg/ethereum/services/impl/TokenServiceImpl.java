@@ -6,6 +6,13 @@ import com.lbg.ethereum.services.TokenService;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeEncoder;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.DynamicBytes;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
+import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.Sign;
 import org.web3j.protocol.Web3j;
@@ -16,9 +23,8 @@ import org.web3j.utils.Numeric;
 import org.web3j.utils.Bytes;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,66 +138,60 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public ResponseEntity<AddClaimResponseDto> addClaim(AddClaimDto addClaimDto) {
+        AddClaimResponseDto response = new AddClaimResponseDto();
         try {
-            // 1. Prepare signer (credentials)
-            Credentials userSigner = Credentials.create(environment.getProperty(addClaimDto.getSigner()));
+            Credentials userSigner = Credentials.create(environment.getProperty(addClaimDto.getSigner() + "PrivateKey"));
+            Credentials claimIssuer = Credentials.create(environment.getProperty("claimIssuerSignPrivateKey"));
 
-            // 2. Prepare claimIssuer credentials
-            Credentials claimIssuer = Credentials.create(environment.getProperty("claimIssuerPrivateKey"));
+            // Load the Identity contract
+            Identity identity = Identity.load(addClaimDto.getIdentityAddress(), web3j, userSigner, new DefaultGasProvider());
 
-            // 3. Load the Identity contract
-            Identity identity = Identity.load(
-                    addClaimDto.getIdentityAddress(),
-                    web3j,
-                    userSigner,
-                    new DefaultGasProvider()
+            // Hash the topic
+            byte[] topicHash = org.web3j.crypto.Hash.sha3(addClaimDto.getTopic().getBytes());
+            BigInteger topicBigInt = new BigInteger(1, topicHash);
+
+            // Prepare claim data
+            byte[] dataBytes = addClaimDto.getData().getBytes("UTF-8");
+
+            // Encode and hash for signature
+            Function function = new Function(
+                    "", // method name is not used for parameter encoding
+                    Arrays.asList(
+                            new Address(addClaimDto.getIdentityAddress()),
+                            new Uint256(topicBigInt),
+                            new DynamicBytes(dataBytes)
+                    ),
+                    Collections.emptyList()
             );
 
-            // 4. Hash the topic string to uint256 (as in ethers.utils.id)
-            String topicHash = Hash.sha3String(addClaimDto.getTopic()); // returns 0x...
-            BigInteger topic = new BigInteger(topicHash.substring(2), 16);
+// Encode the function and remove the method selector (first 4 bytes)
+            String encodedHex = FunctionEncoder.encode(function).substring(8); // skip "0x" and 4 bytes (8 hex chars)
+            byte[] encoded = Numeric.hexStringToByteArray(encodedHex);
+            byte[] hash = Hash.sha3(encoded);
+            // Sign the claim
+            org.web3j.crypto.Sign.SignatureData signatureData = Sign.signMessage(hash, claimIssuer.getEcKeyPair());
+            String signature = Numeric.toHexString(signatureData.getR()) +
+                    Numeric.toHexString(signatureData.getS()).substring(2) +
+                    Numeric.toHexString(new byte[]{signatureData.getV()[0]}).substring(2);
 
-            // 5. Prepare claim data
-            byte[] dataBytes = addClaimDto.getData().getBytes(java.nio.charset.StandardCharsets.UTF_8);
-            String dataHex = Numeric.toHexString(dataBytes);
-
-            // 6. Prepare the message to sign (mimic ethers.utils.keccak256(abi.encode(...)))
-            String encoded = org.web3j.abi.FunctionEncoder.encodeConstructor(
-                    java.util.Arrays.asList(
-                            new org.web3j.abi.datatypes.Address(addClaimDto.getIdentityAddress()),
-                            new org.web3j.abi.datatypes.generated.Uint256(topic),
-                            new org.web3j.abi.datatypes.DynamicBytes(dataBytes)
-                    )
-            );
-            String messageHash = Hash.sha3(encoded);
-
-            // 7. Sign the message
-            String signature = signMessage(claimIssuer, Numeric.hexStringToByteArray(messageHash));
-
-            // 8. Call addClaim on the contract
+            // Call addClaim on the contract
             TransactionReceipt tx = identity.addClaim(
-                    topic,
+                    topicBigInt,
                     BigInteger.valueOf(addClaimDto.getScheme()),
-                    environment.getProperty("claimIssuerContract_smart_contract_address"),
-                    Numeric.hexStringToByteArray(signature), // convert to byte[]
-                    Numeric.hexStringToByteArray(dataHex),
-                    addClaimDto.getUri() // uri
-                    // If your wrapper expects a TransactionManager or options, pass as needed
+                    claimIssuer.getAddress(),
+                    signature.getBytes(),
+                    dataBytes,
+                    ""
             ).send();
+            response.setStatusCode(200);
+            response.setMessage("Claim added successfully");
+            response.setReceipt(tx);
 
-            return ResponseEntity.ok().body(new AddClaimResponseDto() {{
-                ;
-                setStatusCode(200);
-                setMessage("Claim added successfully");
-                setReceipt(tx);
-            }});
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AddClaimResponseDto() {{
-                setStatusCode(400);
-                setMessage("Error adding claim: " + e.getMessage());
-                setReceipt(null);
-            }});
+           throw new RuntimeException("Failed to add claim: " + e.getMessage(), e);
         }
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -694,7 +694,7 @@ public class TokenServiceImpl implements TokenService {
             TransactionReceipt tx = token.transferFrom(
                     environment.getProperty(transferApprovedTokensDto.getFromAddress()),
                     environment.getProperty(transferApprovedTokensDto.getToAddress()),
-                    transferApprovedTokensDto.getTransferAmount()
+                    BigInteger.valueOf(transferApprovedTokensDto.getTransferAmount())
             ).send();
             transferApprovedTokensResponseDto.setMessage("Approved tokens transferred successfully");
             transferApprovedTokensResponseDto.setTransactionReceipt(tx);
@@ -890,16 +890,50 @@ public class TokenServiceImpl implements TokenService {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<AddKeyResponseDto> addKey(AddkeyDto addkeyDto) {
+       AddKeyResponseDto addKeyResponseDto = new AddKeyResponseDto();
+       try {
+           Credentials managementSigner = Credentials.create(environment.getProperty("lbgPrivateKey"));
+
+           String key =Hash.sha3(
+                  TypeEncoder.encode(new org.web3j.abi.datatypes.Address(addkeyDto.getKey()))
+           );
+
+           byte[] keyBytes = Numeric.hexStringToByteArray(key);
+           // 2. Load the Identity contract
+           Identity identity = Identity.load(
+                   addkeyDto.getIdentityAddress(),
+                   web3j,
+                   managementSigner,
+                   new DefaultGasProvider()
+           );
+
+           // 3. Call addKey on the contract
+           TransactionReceipt tx = identity.addKey(
+                   keyBytes, // Should be a 32-byte hex string (keccak256 hash)
+                   BigInteger.valueOf(addkeyDto.getPurpose()),
+                   BigInteger.valueOf(addkeyDto.getKeyType())
+           ).send();
+
+           addKeyResponseDto.setMessage("Key added successfully");
+              addKeyResponseDto.setTransactionReceipt(tx);
+       } catch(Exception e) {
+           throw new RuntimeException("Failed to add key: " + e.getMessage(), e);
+       }
+       return ResponseEntity.ok(addKeyResponseDto);
+    }
+
 
     private String signMessage(Credentials credentials, byte[] message) {
-        Sign.SignatureData sig = Sign.signMessage(message, credentials.getEcKeyPair());
-        byte[] r = sig.getR();
-        byte[] s = sig.getS();
-        byte[] v = sig.getV(); // Correct: v is a single byte
+        Sign.SignatureData signatureData = Sign.signMessage(message, credentials.getEcKeyPair(), false);
+        byte[] r = signatureData.getR();
+        byte[] s = signatureData.getS();
+        byte v = signatureData.getV()[0]; // get the first byte, not the array!
         byte[] signature = new byte[r.length + s.length + 1];
         System.arraycopy(r, 0, signature, 0, r.length);
         System.arraycopy(s, 0, signature, r.length, s.length);
-        System.arraycopy(v, 0, signature, r.length + s.length, v.length);
+        signature[64] = v; // v is always 1 byte
         return Numeric.toHexString(signature);
     }
     public static BigInteger topicToUint256(String topic) {

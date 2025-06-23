@@ -7,7 +7,7 @@ public class TransferApprovedTokensDto {
     private String tokenAddress;
     private String fromAddress;
     private String toAddress;
-    private BigInteger transferAmount;
+    private int transferAmount;
 
     public String getSigner() {
         return signer;
@@ -41,11 +41,11 @@ public class TransferApprovedTokensDto {
         this.toAddress = toAddress;
     }
 
-    public BigInteger getTransferAmount() {
+    public int getTransferAmount() {
         return transferAmount;
     }
 
-    public void setTransferAmount(BigInteger transferAmount) {
+    public void setTransferAmount(int transferAmount) {
         this.transferAmount = transferAmount;
     }
 }

@@ -149,5 +149,10 @@ public class TokenController {
         return tokenService.unFreezeAccount(unFreezeAccountDto);
     }
 
+    @PostMapping("/add-key")
+    public ResponseEntity<AddKeyResponseDto> addKey(@RequestBody AddkeyDto addkeyDto) {
+
+        return tokenService.addKey(addkeyDto);
+    }
 
 }

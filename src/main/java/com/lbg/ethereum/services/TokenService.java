@@ -2,6 +2,7 @@ package com.lbg.ethereum.services;
 
 import com.lbg.ethereum.DTOs.*;
 
+import okhttp3.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,4 +33,6 @@ public interface TokenService {
     ResponseEntity<RecoverAccountResponseDto> recoverAccount(RecoverAccountDto recoverAccountDto);
     ResponseEntity<FreezeAccountResponseDto>   freezeAccount(FreezeAccountDto freezeAccountDto);
     ResponseEntity<UnfreezeAccountResponseDto> unFreezeAccount(UnFreezeAccountDto unFreezeAccountDto);
+
+    ResponseEntity<AddKeyResponseDto> addKey(AddkeyDto addkeyDto);
 }
