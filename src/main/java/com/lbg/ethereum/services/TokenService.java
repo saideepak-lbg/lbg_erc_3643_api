@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface TokenService {
-    CreateOnChainIdResponse createOnChainId(OnChainIdCreationDto onChainIdCreationDto);
-    ResponseEntity<RegisterIdentityReponseDto> registerIdentity(RegisterIdentityDto registerIdentityDto);
 
-    ResponseEntity<GetUserClaimsResponseDto> getUserClaims(UserClaimDto userClaimDto);
     ResponseEntity<AddClaimResponseDto> addClaim(AddClaimDto addClaimDto);
     ResponseEntity<AddClaimTopicReponseDto> addClaimTopic(AddClaimTopicDto addClaimTopicDto);
     ResponseEntity<RemoveClaimTopicResponseDto> removeClaimTopic(RemoveClaimTopicDto removeClaimTopicDto);

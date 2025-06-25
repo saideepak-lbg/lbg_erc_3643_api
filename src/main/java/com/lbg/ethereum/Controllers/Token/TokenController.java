@@ -20,65 +20,17 @@ public class TokenController {
     @Autowired
     Web3j web3j;
 
-    @PostMapping("/create-onchain-identity")
-    public CreateOnChainIdResponse createOnChainIdResponse(@RequestBody OnChainIdCreationDto onChainIdCreationDto){
-       return tokenService.createOnChainId(onChainIdCreationDto);
-    }
-
-    @PostMapping("/register-identity")
-    public ResponseEntity<RegisterIdentityReponseDto> registerIdentity(@RequestBody RegisterIdentityDto registerIdentityDto) {
-        // This method is a placeholder. Implement the logic to register an identity.
-        return tokenService.registerIdentity(registerIdentityDto);
-    }
-
-    @PostMapping("/get-user-claims")
-    public ResponseEntity<GetUserClaimsResponseDto> getUserClaims(@RequestBody UserClaimDto userClaimDto) {
-        // This method is a placeholder. Implement the logic to retrieve user claims.
-        return tokenService.getUserClaims(userClaimDto);
-    }
-
-    @PostMapping("/add-claim")
-    public ResponseEntity<AddClaimResponseDto> addClaim(@RequestBody AddClaimDto addClaimDto) {
-        // This method is a placeholder. Implement the logic to add a claim.
-        return tokenService.addClaim(addClaimDto);
-    }
 
     @GetMapping("/check-testnet-connection")
     public String checkTestnetConnection() throws IOException {
         Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().send();
-        if(web3ClientVersion.hasError()) {
+        if (web3ClientVersion.hasError()) {
             return "Error connecting to testnet: " + web3ClientVersion.getError().getMessage();
         }
 
-        return "Testnet connection is successful!"+web3ClientVersion.getWeb3ClientVersion();
+        return "Testnet connection is successful!" + web3ClientVersion.getWeb3ClientVersion();
     }
 
-    @PostMapping("/add-claim-topic")
-    public ResponseEntity<AddClaimTopicReponseDto> addClaimTopic(@RequestBody AddClaimTopicDto addClaimTopicDto) {
-
-        return tokenService.addClaimTopic(addClaimTopicDto);
-    }
-
-    @PostMapping("/remove-claim-topic")
-    public ResponseEntity<RemoveClaimTopicResponseDto> removeClaimTopic(@RequestBody RemoveClaimTopicDto removeClaimTopicDto) {
-        return tokenService.removeClaimTopic(removeClaimTopicDto);
-    }
-
-    @PostMapping("/get-claim-topics")
-    public ResponseEntity<GetClaimTopicsResponseDto> getClaimTopics(@RequestBody GetClaimTopicsDto getClaimTopicsDto) {
-
-        return tokenService.getClaimTopics(getClaimTopicsDto);
-    }
-
-    @PostMapping("/add-trusted-issuer-claim-topic")
-    public ResponseEntity<AddTrustedIssuerClaimTopicResponseDto> addTrustedIssuerClaimTopic(@RequestBody AddTrustedIssuerClaimTopicsDto addTrustedIssuerClaimTopicDto) {
-        return tokenService.addTrustedIssuerClaimTopic(addTrustedIssuerClaimTopicDto);
-    }
-
-    @PostMapping("/update-trusted-issuer-claim-topic")
-    public ResponseEntity<UpdateTrustedIssuerClaimTopicResponseDto> updateTrustedIssuerClaimTopic(@RequestBody UpdateTrustedIssuerClaimTopicsDto updateTrustedIssuerClaimTopicsDto) {
-        return tokenService.updateTrustedIssuerClaimTopic(updateTrustedIssuerClaimTopicsDto);
-    }
 
     @PostMapping("/get-user-tokens")
     public ResponseEntity<GetUserTokenResponseDto> getUserTokenBalance(@RequestBody GetUserTokensDto getUserTokensDto) {
@@ -99,10 +51,12 @@ public class TokenController {
     public ResponseEntity<TransferTokensReponseDto> transferTokens(@RequestBody TransferTokensDto transferTokensDto) {
         return tokenService.transferTokens(transferTokensDto);
     }
+
     @PostMapping("/freeze-token")
     public ResponseEntity<FreezeTokenResponseDto> freezeToken(@RequestBody FreezeTokensDto freezeTokensDto) {
         return tokenService.freezeToken(freezeTokensDto);
     }
+
     @PostMapping("/unfreeze-tokens")
     public ResponseEntity<UnFreezeTokenResponseDto> unFreezeToken(@RequestBody UnFreezeTokensDto unFreezeTokensDto) {
         return tokenService.unFreezeToken(unFreezeTokensDto);
