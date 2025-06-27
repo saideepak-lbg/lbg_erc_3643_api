@@ -1,12 +1,14 @@
 package com.lbg.ethereum.contracts;
 
 import io.reactivex.Flowable;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
@@ -35,7 +37,7 @@ import org.web3j.tx.gas.ContractGasProvider;
  * <p>Auto generated code.
  * <p><strong>Do not modify!</strong>
  * <p>Please use the <a href="https://docs.web3j.io/command_line.html">web3j command line tools</a>,
- * or the org.web3j.codegen.SolidityFunctionWrapperGenerator in the 
+ * or the org.web3j.codegen.SolidityFunctionWrapperGenerator in the
  * <a href="https://github.com/LFDT-web3j/web3j/tree/main/codegen">codegen module</a> to update.
  *
  * <p>Generated with web3j version 1.7.0.
@@ -70,45 +72,53 @@ public class TrustedIssuersRegistry extends Contract {
 
     public static final String FUNC_UPDATEISSUERCLAIMTOPICS = "updateIssuerClaimTopics";
 
-    public static final Event CLAIMTOPICSUPDATED_EVENT = new Event("ClaimTopicsUpdated", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<DynamicArray<Uint256>>() {}));
+    public static final Event CLAIMTOPICSUPDATED_EVENT = new Event("ClaimTopicsUpdated",
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {
+            }, new TypeReference<DynamicArray<Uint256>>() {
+            }));
     ;
 
-    public static final Event INITIALIZED_EVENT = new Event("Initialized", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Uint8>() {}));
+    public static final Event INITIALIZED_EVENT = new Event("Initialized",
+            Arrays.<TypeReference<?>>asList(new TypeReference<Uint8>() {
+            }));
     ;
 
-    public static final Event OWNERSHIPTRANSFERRED_EVENT = new Event("OwnershipTransferred", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}));
+    public static final Event OWNERSHIPTRANSFERRED_EVENT = new Event("OwnershipTransferred",
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {
+            }, new TypeReference<Address>(true) {
+            }));
     ;
 
-    public static final Event TRUSTEDISSUERADDED_EVENT = new Event("TrustedIssuerAdded", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<DynamicArray<Uint256>>() {}));
+    public static final Event TRUSTEDISSUERADDED_EVENT = new Event("TrustedIssuerAdded",
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {
+            }, new TypeReference<DynamicArray<Uint256>>() {
+            }));
     ;
 
-    public static final Event TRUSTEDISSUERREMOVED_EVENT = new Event("TrustedIssuerRemoved", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}));
+    public static final Event TRUSTEDISSUERREMOVED_EVENT = new Event("TrustedIssuerRemoved",
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {
+            }));
     ;
 
     @Deprecated
     protected TrustedIssuersRegistry(String contractAddress, Web3j web3j, Credentials credentials,
-            BigInteger gasPrice, BigInteger gasLimit) {
+                                     BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, credentials, gasPrice, gasLimit);
     }
 
     protected TrustedIssuersRegistry(String contractAddress, Web3j web3j, Credentials credentials,
-            ContractGasProvider contractGasProvider) {
+                                     ContractGasProvider contractGasProvider) {
         super(BINARY, contractAddress, web3j, credentials, contractGasProvider);
     }
 
     @Deprecated
     protected TrustedIssuersRegistry(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+                                     TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
     protected TrustedIssuersRegistry(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+                                     TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
@@ -131,11 +141,7 @@ public class TrustedIssuersRegistry extends Contract {
         ClaimTopicsUpdatedEventResponse typedResponse = new ClaimTopicsUpdatedEventResponse();
         typedResponse.log = log;
         typedResponse.trustedIssuer = (String) eventValues.getIndexedValues().get(0).getValue();
-        typedResponse.claimTopics = ((DynamicArray<Uint256>) eventValues.getNonIndexedValues().get(0))
-                .getValue()
-                .stream()
-                .map(Uint256::getValue)
-                .collect(java.util.stream.Collectors.toList());
+        typedResponse.claimTopics = convertToNative((List<Type>) ((DynamicArray) eventValues.getNonIndexedValues().get(0)).getValue());
         return typedResponse;
     }
 
@@ -237,12 +243,7 @@ public class TrustedIssuersRegistry extends Contract {
         TrustedIssuerAddedEventResponse typedResponse = new TrustedIssuerAddedEventResponse();
         typedResponse.log = log;
         typedResponse.trustedIssuer = (String) eventValues.getIndexedValues().get(0).getValue();
-        typedResponse.claimTopics = ((DynamicArray<Uint256>) eventValues.getNonIndexedValues().get(0))
-                .getValue()
-                .stream()
-                .map(Uint256::getValue)
-                .collect(java.util.stream.Collectors.toList());
-        return typedResponse;
+typedResponse.claimTopics = convertToNative((List<Type>) ((DynamicArray) eventValues.getNonIndexedValues().get(0)).getValue());        return typedResponse;
     }
 
     public Flowable<TrustedIssuerAddedEventResponse> trustedIssuerAddedEventFlowable(
@@ -291,21 +292,22 @@ public class TrustedIssuersRegistry extends Contract {
     }
 
     public RemoteFunctionCall<TransactionReceipt> addTrustedIssuer(String _trustedIssuer,
-            List<BigInteger> _claimTopics) {
+                                                                   List<BigInteger> _claimTopics) {
         final Function function = new Function(
-                FUNC_ADDTRUSTEDISSUER, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer), 
-                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
-                        org.web3j.abi.datatypes.generated.Uint256.class,
-                        org.web3j.abi.Utils.typeMap(_claimTopics, org.web3j.abi.datatypes.generated.Uint256.class))), 
+                FUNC_ADDTRUSTEDISSUER,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer),
+                        new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
+                                org.web3j.abi.datatypes.generated.Uint256.class,
+                                org.web3j.abi.Utils.typeMap(_claimTopics, org.web3j.abi.datatypes.generated.Uint256.class))),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<List> getTrustedIssuerClaimTopics(String _trustedIssuer) {
-        final Function function = new Function(FUNC_GETTRUSTEDISSUERCLAIMTOPICS, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Uint256>>() {}));
+        final Function function = new Function(FUNC_GETTRUSTEDISSUERCLAIMTOPICS,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Uint256>>() {
+                }));
         return new RemoteFunctionCall<List>(function,
                 new Callable<List>() {
                     @Override
@@ -318,9 +320,10 @@ public class TrustedIssuersRegistry extends Contract {
     }
 
     public RemoteFunctionCall<List> getTrustedIssuers() {
-        final Function function = new Function(FUNC_GETTRUSTEDISSUERS, 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Address>>() {}));
+        final Function function = new Function(FUNC_GETTRUSTEDISSUERS,
+                Arrays.<Type>asList(),
+                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Address>>() {
+                }));
         return new RemoteFunctionCall<List>(function,
                 new Callable<List>() {
                     @Override
@@ -333,9 +336,10 @@ public class TrustedIssuersRegistry extends Contract {
     }
 
     public RemoteFunctionCall<List> getTrustedIssuersForClaimTopic(BigInteger claimTopic) {
-        final Function function = new Function(FUNC_GETTRUSTEDISSUERSFORCLAIMTOPIC, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(claimTopic)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Address>>() {}));
+        final Function function = new Function(FUNC_GETTRUSTEDISSUERSFORCLAIMTOPIC,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(claimTopic)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Address>>() {
+                }));
         return new RemoteFunctionCall<List>(function,
                 new Callable<List>() {
                     @Override
@@ -348,112 +352,115 @@ public class TrustedIssuersRegistry extends Contract {
     }
 
     public RemoteFunctionCall<Boolean> hasClaimTopic(String _issuer, BigInteger _claimTopic) {
-        final Function function = new Function(FUNC_HASCLAIMTOPIC, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _issuer), 
-                new org.web3j.abi.datatypes.generated.Uint256(_claimTopic)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}));
+        final Function function = new Function(FUNC_HASCLAIMTOPIC,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _issuer),
+                        new org.web3j.abi.datatypes.generated.Uint256(_claimTopic)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
     public RemoteFunctionCall<TransactionReceipt> init() {
         final Function function = new Function(
-                FUNC_INIT, 
-                Arrays.<Type>asList(), 
+                FUNC_INIT,
+                Arrays.<Type>asList(),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<Boolean> isTrustedIssuer(String _issuer) {
-        final Function function = new Function(FUNC_ISTRUSTEDISSUER, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _issuer)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}));
+        final Function function = new Function(FUNC_ISTRUSTEDISSUER,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _issuer)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
     public RemoteFunctionCall<String> owner() {
-        final Function function = new Function(FUNC_OWNER, 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
+        final Function function = new Function(FUNC_OWNER,
+                Arrays.<Type>asList(),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteFunctionCall<TransactionReceipt> removeTrustedIssuer(String _trustedIssuer) {
         final Function function = new Function(
-                FUNC_REMOVETRUSTEDISSUER, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer)), 
+                FUNC_REMOVETRUSTEDISSUER,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<TransactionReceipt> renounceOwnership() {
         final Function function = new Function(
-                FUNC_RENOUNCEOWNERSHIP, 
-                Arrays.<Type>asList(), 
+                FUNC_RENOUNCEOWNERSHIP,
+                Arrays.<Type>asList(),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<TransactionReceipt> transferOwnership(String newOwner) {
         final Function function = new Function(
-                FUNC_TRANSFEROWNERSHIP, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, newOwner)), 
+                FUNC_TRANSFEROWNERSHIP,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, newOwner)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<TransactionReceipt> updateIssuerClaimTopics(String _trustedIssuer,
-            List<BigInteger> _claimTopics) {
+                                                                          List<BigInteger> _claimTopics) {
         final Function function = new Function(
-                FUNC_UPDATEISSUERCLAIMTOPICS, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer), 
-                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
-                        org.web3j.abi.datatypes.generated.Uint256.class,
-                        org.web3j.abi.Utils.typeMap(_claimTopics, org.web3j.abi.datatypes.generated.Uint256.class))), 
+                FUNC_UPDATEISSUERCLAIMTOPICS,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, _trustedIssuer),
+                        new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
+                                org.web3j.abi.datatypes.generated.Uint256.class,
+                                org.web3j.abi.Utils.typeMap(_claimTopics, org.web3j.abi.datatypes.generated.Uint256.class))),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     @Deprecated
     public static TrustedIssuersRegistry load(String contractAddress, Web3j web3j,
-            Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
+                                              Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
         return new TrustedIssuersRegistry(contractAddress, web3j, credentials, gasPrice, gasLimit);
     }
 
     @Deprecated
     public static TrustedIssuersRegistry load(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+                                              TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         return new TrustedIssuersRegistry(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
     public static TrustedIssuersRegistry load(String contractAddress, Web3j web3j,
-            Credentials credentials, ContractGasProvider contractGasProvider) {
+                                              Credentials credentials, ContractGasProvider contractGasProvider) {
         return new TrustedIssuersRegistry(contractAddress, web3j, credentials, contractGasProvider);
     }
 
     public static TrustedIssuersRegistry load(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+                                              TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         return new TrustedIssuersRegistry(contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
     public static RemoteCall<TrustedIssuersRegistry> deploy(Web3j web3j, Credentials credentials,
-            ContractGasProvider contractGasProvider) {
+                                                            ContractGasProvider contractGasProvider) {
         return deployRemoteCall(TrustedIssuersRegistry.class, web3j, credentials, contractGasProvider, getDeploymentBinary(), "");
     }
 
     @Deprecated
     public static RemoteCall<TrustedIssuersRegistry> deploy(Web3j web3j, Credentials credentials,
-            BigInteger gasPrice, BigInteger gasLimit) {
+                                                            BigInteger gasPrice, BigInteger gasLimit) {
         return deployRemoteCall(TrustedIssuersRegistry.class, web3j, credentials, gasPrice, gasLimit, getDeploymentBinary(), "");
     }
 
     public static RemoteCall<TrustedIssuersRegistry> deploy(Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+                                                            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         return deployRemoteCall(TrustedIssuersRegistry.class, web3j, transactionManager, contractGasProvider, getDeploymentBinary(), "");
     }
 
     @Deprecated
     public static RemoteCall<TrustedIssuersRegistry> deploy(Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+                                                            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         return deployRemoteCall(TrustedIssuersRegistry.class, web3j, transactionManager, gasPrice, gasLimit, getDeploymentBinary(), "");
     }
 

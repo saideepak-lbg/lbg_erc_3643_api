@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
+
 @RestControllerAdvice()
 public class UserServiceExceptionHandler {
 
@@ -21,7 +23,7 @@ public class UserServiceExceptionHandler {
         errorResponse.setStatusCode(500);
         errorResponse.setMessage(ex.getMessage());
         errorResponse.setPath("/user/create-onchain-identity");
-        errorResponse.setTimestamp(String.valueOf(System.currentTimeMillis()));
+        errorResponse.setTimestamp(Instant.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -37,7 +39,7 @@ public class UserServiceExceptionHandler {
         errorResponse.setStatusCode(500);
         errorResponse.setMessage(ex.getMessage());
         errorResponse.setPath("/user/register-onchain-identity");
-        errorResponse.setTimestamp(String.valueOf(System.currentTimeMillis()));
+        errorResponse.setTimestamp(Instant.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

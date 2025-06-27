@@ -1,10 +1,12 @@
 package com.lbg.ethereum.exception.handlers;
 
+import java.time.Instant;
+
 public class ExceptionResponse {
     private int statusCode;
     private String message;
     private String path;
-    private String timestamp;
+    private Instant timestamp;
 
     public int getStatusCode() {
         return statusCode;
@@ -30,11 +32,11 @@ public class ExceptionResponse {
         this.path = path;
     }
 
-    public String getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 }

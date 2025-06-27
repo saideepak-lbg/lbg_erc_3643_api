@@ -153,18 +153,18 @@ public class IdentityRegistry extends Contract {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-  /*  public static List<AgentAddedEventResponse> getAgentAddedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTADDED_EVENT, transactionReceipt);
-        ArrayList<AgentAddedEventResponse> responses = new ArrayList<AgentAddedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            AgentAddedEventResponse typedResponse = new AgentAddedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<AgentAddedEventResponse> getAgentAddedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTADDED_EVENT, transactionReceipt);
+//        ArrayList<AgentAddedEventResponse> responses = new ArrayList<AgentAddedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            AgentAddedEventResponse typedResponse = new AgentAddedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static AgentAddedEventResponse getAgentAddedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AGENTADDED_EVENT, log);
@@ -185,18 +185,18 @@ public class IdentityRegistry extends Contract {
         return agentAddedEventFlowable(filter);
     }
 
-    /*public static List<AgentRemovedEventResponse> getAgentRemovedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, transactionReceipt);
-        ArrayList<AgentRemovedEventResponse> responses = new ArrayList<AgentRemovedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            AgentRemovedEventResponse typedResponse = new AgentRemovedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<AgentRemovedEventResponse> getAgentRemovedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, transactionReceipt);
+//        ArrayList<AgentRemovedEventResponse> responses = new ArrayList<AgentRemovedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            AgentRemovedEventResponse typedResponse = new AgentRemovedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static AgentRemovedEventResponse getAgentRemovedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, log);
@@ -217,18 +217,18 @@ public class IdentityRegistry extends Contract {
         return agentRemovedEventFlowable(filter);
     }
 
-   /* public static List<ClaimTopicsRegistrySetEventResponse> getClaimTopicsRegistrySetEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(CLAIMTOPICSREGISTRYSET_EVENT, transactionReceipt);
-        ArrayList<ClaimTopicsRegistrySetEventResponse> responses = new ArrayList<ClaimTopicsRegistrySetEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            ClaimTopicsRegistrySetEventResponse typedResponse = new ClaimTopicsRegistrySetEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.claimTopicsRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<ClaimTopicsRegistrySetEventResponse> getClaimTopicsRegistrySetEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(CLAIMTOPICSREGISTRYSET_EVENT, transactionReceipt);
+//        ArrayList<ClaimTopicsRegistrySetEventResponse> responses = new ArrayList<ClaimTopicsRegistrySetEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            ClaimTopicsRegistrySetEventResponse typedResponse = new ClaimTopicsRegistrySetEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.claimTopicsRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static ClaimTopicsRegistrySetEventResponse getClaimTopicsRegistrySetEventFromLog(
             Log log) {
@@ -251,19 +251,19 @@ public class IdentityRegistry extends Contract {
         return claimTopicsRegistrySetEventFlowable(filter);
     }
 
-   /* public static List<CountryUpdatedEventResponse> getCountryUpdatedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(COUNTRYUPDATED_EVENT, transactionReceipt);
-        ArrayList<CountryUpdatedEventResponse> responses = new ArrayList<CountryUpdatedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            CountryUpdatedEventResponse typedResponse = new CountryUpdatedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.country = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<CountryUpdatedEventResponse> getCountryUpdatedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(COUNTRYUPDATED_EVENT, transactionReceipt);
+//        ArrayList<CountryUpdatedEventResponse> responses = new ArrayList<CountryUpdatedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            CountryUpdatedEventResponse typedResponse = new CountryUpdatedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.country = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static CountryUpdatedEventResponse getCountryUpdatedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(COUNTRYUPDATED_EVENT, log);
@@ -285,20 +285,20 @@ public class IdentityRegistry extends Contract {
         return countryUpdatedEventFlowable(filter);
     }
 
- /*   public static List<IdentityRegisteredEventResponse> getIdentityRegisteredEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREGISTERED_EVENT, transactionReceipt);
-        ArrayList<IdentityRegisteredEventResponse> responses = new ArrayList<IdentityRegisteredEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            IdentityRegisteredEventResponse typedResponse = new IdentityRegisteredEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.identity = (String) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }
-*/
+//    public static List<IdentityRegisteredEventResponse> getIdentityRegisteredEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREGISTERED_EVENT, transactionReceipt);
+//        ArrayList<IdentityRegisteredEventResponse> responses = new ArrayList<IdentityRegisteredEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            IdentityRegisteredEventResponse typedResponse = new IdentityRegisteredEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.identity = (String) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
+
     public static IdentityRegisteredEventResponse getIdentityRegisteredEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(IDENTITYREGISTERED_EVENT, log);
         IdentityRegisteredEventResponse typedResponse = new IdentityRegisteredEventResponse();
@@ -320,19 +320,19 @@ public class IdentityRegistry extends Contract {
         return identityRegisteredEventFlowable(filter);
     }
 
-    /*public static List<IdentityRemovedEventResponse> getIdentityRemovedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREMOVED_EVENT, transactionReceipt);
-        ArrayList<IdentityRemovedEventResponse> responses = new ArrayList<IdentityRemovedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            IdentityRemovedEventResponse typedResponse = new IdentityRemovedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.identity = (String) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<IdentityRemovedEventResponse> getIdentityRemovedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREMOVED_EVENT, transactionReceipt);
+//        ArrayList<IdentityRemovedEventResponse> responses = new ArrayList<IdentityRemovedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            IdentityRemovedEventResponse typedResponse = new IdentityRemovedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.investorAddress = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.identity = (String) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static IdentityRemovedEventResponse getIdentityRemovedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(IDENTITYREMOVED_EVENT, log);
@@ -354,18 +354,18 @@ public class IdentityRegistry extends Contract {
         return identityRemovedEventFlowable(filter);
     }
 
-   /* public static List<IdentityStorageSetEventResponse> getIdentityStorageSetEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYSTORAGESET_EVENT, transactionReceipt);
-        ArrayList<IdentityStorageSetEventResponse> responses = new ArrayList<IdentityStorageSetEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            IdentityStorageSetEventResponse typedResponse = new IdentityStorageSetEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.identityStorage = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<IdentityStorageSetEventResponse> getIdentityStorageSetEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYSTORAGESET_EVENT, transactionReceipt);
+//        ArrayList<IdentityStorageSetEventResponse> responses = new ArrayList<IdentityStorageSetEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            IdentityStorageSetEventResponse typedResponse = new IdentityStorageSetEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.identityStorage = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static IdentityStorageSetEventResponse getIdentityStorageSetEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(IDENTITYSTORAGESET_EVENT, log);
@@ -387,19 +387,19 @@ public class IdentityRegistry extends Contract {
         return identityStorageSetEventFlowable(filter);
     }
 
- /*   public static List<IdentityUpdatedEventResponse> getIdentityUpdatedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYUPDATED_EVENT, transactionReceipt);
-        ArrayList<IdentityUpdatedEventResponse> responses = new ArrayList<IdentityUpdatedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            IdentityUpdatedEventResponse typedResponse = new IdentityUpdatedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.oldIdentity = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.newIdentity = (String) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<IdentityUpdatedEventResponse> getIdentityUpdatedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYUPDATED_EVENT, transactionReceipt);
+//        ArrayList<IdentityUpdatedEventResponse> responses = new ArrayList<IdentityUpdatedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            IdentityUpdatedEventResponse typedResponse = new IdentityUpdatedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.oldIdentity = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.newIdentity = (String) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static IdentityUpdatedEventResponse getIdentityUpdatedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(IDENTITYUPDATED_EVENT, log);
@@ -421,18 +421,18 @@ public class IdentityRegistry extends Contract {
         return identityUpdatedEventFlowable(filter);
     }
 
-/*    public static List<InitializedEventResponse> getInitializedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(INITIALIZED_EVENT, transactionReceipt);
-        ArrayList<InitializedEventResponse> responses = new ArrayList<InitializedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            InitializedEventResponse typedResponse = new InitializedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.version = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<InitializedEventResponse> getInitializedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(INITIALIZED_EVENT, transactionReceipt);
+//        ArrayList<InitializedEventResponse> responses = new ArrayList<InitializedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            InitializedEventResponse typedResponse = new InitializedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.version = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static InitializedEventResponse getInitializedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(INITIALIZED_EVENT, log);
@@ -453,19 +453,19 @@ public class IdentityRegistry extends Contract {
         return initializedEventFlowable(filter);
     }
 
- /*   public static List<OwnershipTransferredEventResponse> getOwnershipTransferredEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
-        ArrayList<OwnershipTransferredEventResponse> responses = new ArrayList<OwnershipTransferredEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.newOwner = (String) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<OwnershipTransferredEventResponse> getOwnershipTransferredEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
+//        ArrayList<OwnershipTransferredEventResponse> responses = new ArrayList<OwnershipTransferredEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.newOwner = (String) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static OwnershipTransferredEventResponse getOwnershipTransferredEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, log);
@@ -488,18 +488,18 @@ public class IdentityRegistry extends Contract {
         return ownershipTransferredEventFlowable(filter);
     }
 
- /*   public static List<TrustedIssuersRegistrySetEventResponse> getTrustedIssuersRegistrySetEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRUSTEDISSUERSREGISTRYSET_EVENT, transactionReceipt);
-        ArrayList<TrustedIssuersRegistrySetEventResponse> responses = new ArrayList<TrustedIssuersRegistrySetEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            TrustedIssuersRegistrySetEventResponse typedResponse = new TrustedIssuersRegistrySetEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.trustedIssuersRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<TrustedIssuersRegistrySetEventResponse> getTrustedIssuersRegistrySetEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRUSTEDISSUERSREGISTRYSET_EVENT, transactionReceipt);
+//        ArrayList<TrustedIssuersRegistrySetEventResponse> responses = new ArrayList<TrustedIssuersRegistrySetEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            TrustedIssuersRegistrySetEventResponse typedResponse = new TrustedIssuersRegistrySetEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.trustedIssuersRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static TrustedIssuersRegistrySetEventResponse getTrustedIssuersRegistrySetEventFromLog(
             Log log) {
@@ -755,9 +755,7 @@ public class IdentityRegistry extends Contract {
         return deployRemoteCall(IdentityRegistry.class, web3j, transactionManager, gasPrice, gasLimit, getDeploymentBinary(), "");
     }
 
-//    public static void linkLibraries(List<Contract.LinkReference> references) {
-//        librariesLinkedBinary = linkBinaryWithReferences(BINARY, references);
-//    }
+
 
     private static String getDeploymentBinary() {
         if (librariesLinkedBinary != null) {

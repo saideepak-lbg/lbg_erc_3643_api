@@ -5,7 +5,7 @@ import com.lbg.ethereum.entities.transactions.Transaction;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_identity", uniqueConstraints = @UniqueConstraint(columnNames = "identity_address"))
+@Table(name = "user_identity")
 public class UserIdentity {
 
     @Id
@@ -17,7 +17,7 @@ public class UserIdentity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(name = "identity_address", length = 100, nullable = false, unique = true)
+    @Column(name = "identity_address", length = 100, nullable = false)
     private String identityAddress;
 
     @ManyToOne

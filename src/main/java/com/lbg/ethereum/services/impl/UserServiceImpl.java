@@ -1,7 +1,5 @@
 package com.lbg.ethereum.services.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lbg.ethereum.DTOs.*;
 import com.lbg.ethereum.contracts.Identity;
 import com.lbg.ethereum.contracts.IdentityProxy;
@@ -16,6 +14,7 @@ import com.lbg.ethereum.repository.TransactionRepository;
 import com.lbg.ethereum.repository.UserIdentityRepository;
 import com.lbg.ethereum.repository.UserRepository;
 import com.lbg.ethereum.services.UserService;
+import com.lbg.ethereum.utils.TransactionMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -81,11 +80,17 @@ public class UserServiceImpl implements UserService {
             if (user.isEmpty()) {
                 throw new OnChainIdCreationException("No user exists for the given wallet key: " + onChainIdCreationDto.getUserAddress());
             }
-            Transaction transaction = GenerateTransactionFromTransactionReceip(txReceipt);
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(txReceipt);
             transaction.setTransactionType(TransactionType.ON_CHAIN_ID_CREATION);
 
             UserEntity userEntity = user.get();
             UserIdentity userIdentity = new UserIdentity();
+            UserIdentity userIdentityEntity = userIdentityRepository.findByIdentityAddressAndUserId(onchainIdAddress,userEntity.getUserId()).
+                    orElse(null);
+            if(userIdentityEntity != null) {
+                throw new OnChainIdCreationException("OnChain ID already exists for the given address: " + onchainIdAddress);
+            }
+
             userIdentity.setUser(userEntity);
             userIdentity.setIdentityAddress(onchainIdAddress);
             userIdentity.setRegistered(false);
@@ -94,6 +99,10 @@ public class UserServiceImpl implements UserService {
                     () -> new OnChainIdCreationException("No signer exists for the given signer: " + onChainIdCreationDto.getSigner())).getUserId());
 
             //write to DB
+            Transaction transactionEntity = transactionRepository.findById(transaction.getTransactionHash()).orElse(null);
+            if(transactionEntity != null && transactionEntity.getTransactionHash().equals(transaction.getTransactionHash()) && transactionEntity.getTransactionType() == TransactionType.ON_CHAIN_ID_CREATION) {
+                throw new OnChainIdCreationException("Transaction already exists for the given hash: " + transaction.getTransactionHash());
+            }
             transactionRepository.save(transaction);
             userIdentityRepository.save(userIdentity);
         } catch (Exception e) {
@@ -105,26 +114,7 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    private Transaction GenerateTransactionFromTransactionReceip(TransactionReceipt txReceipt) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Transaction transaction = new Transaction();
-        transaction.setBlockHash(txReceipt.getBlockHash());
-        transaction.setBlockNumber(txReceipt.getBlockNumber().longValue());
-        transaction.setContractAddress(txReceipt.getContractAddress());
-        transaction.setFromAddress(txReceipt.getFrom());
-        transaction.setLogs(txReceipt.getLogs().toString());
-        transaction.setTransactionIndex(txReceipt.getTransactionIndex().intValue());
-        transaction.setTransactionHash(txReceipt.getTransactionHash());
-        transaction.setRoot(txReceipt.getRoot());
-        transaction.setGasUsed(txReceipt.getGasUsed().longValue());
-        transaction.setStatus(txReceipt.getStatus());
-        transaction.setLogsBloom(txReceipt.getLogsBloom());
-        transaction.setRevertReason(txReceipt.getRevertReason());
-        transaction.setStatusOk(txReceipt.isStatusOK());
-        transaction.setToAddress(txReceipt.getTo());
-        transaction.setCumulativeGasUsed(txReceipt.getCumulativeGasUsed().longValue());
-        return transaction;
-    }
+
 
     public ResponseEntity<RegisterIdentityReponseDto> registerIdentity(RegisterIdentityDto registerIdentityDto) {
         RegisterIdentityReponseDto response = new RegisterIdentityReponseDto();
@@ -160,11 +150,13 @@ public class UserServiceImpl implements UserService {
                 throw new RegisterOnChainIdException("unable to register identity, transaction receipt is null or status is not OK.");
             }
 
-            Transaction transaction = GenerateTransactionFromTransactionReceip(txReciept);
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(txReciept);
             transaction.setTransactionType(TransactionType.REGISTER_ON_CHAIN_ID);
             transactionRepository.save(transaction);
+            UserEntity userEntity = userRepository.findByWalletKey(registerIdentityDto.getUserAddress())
+                    .orElseThrow(() -> new RegisterOnChainIdException("No user exists for the given wallet key: " + registerIdentityDto.getUserAddress()));
             // Update the user identity in the database, set registered to true
-            UserIdentity userIdentity = userIdentityRepository.findByIdentityAddress(registerIdentityDto.getUserIdentity()).
+            UserIdentity userIdentity = userIdentityRepository.findByIdentityAddressAndUserId(registerIdentityDto.getUserIdentity(),userEntity.getUserId()).
                     orElseThrow(() -> new RegisterOnChainIdException("No user identity found for the given address: " + registerIdentityDto.getUserAddress()));
             userIdentity.setRegistered(true);
             userIdentityRepository.save(userIdentity);

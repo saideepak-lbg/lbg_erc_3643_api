@@ -81,17 +81,17 @@ public class TokenServiceImpl implements TokenService {
                     Numeric.toHexString(new byte[]{signatureData.getV()[0]}).substring(2);
 
             // Call addClaim on the contract
-            TransactionReceipt tx = identity.addClaim(
-                    topicBigInt,
-                    BigInteger.valueOf(addClaimDto.getScheme()),
-                    claimIssuer.getAddress(),
-                    signature.getBytes(),
-                    dataBytes,
-                    ""
-            ).send();
-            response.setStatusCode(200);
-            response.setMessage("Claim added successfully");
-            response.setReceipt(tx);
+//            TransactionReceipt tx = identity.addClaim(
+//                    topicBigInt,
+//                    BigInteger.valueOf(addClaimDto.getScheme()),
+//                    claimIssuer.getAddress(),
+//                    signature.getBytes(),
+//                    dataBytes,
+//                    ""
+//            ).send();
+//            response.setStatusCode(200);
+//            response.setMessage("Claim added successfully");
+//            response.setReceipt(tx);
 
 
         } catch (Exception e) {

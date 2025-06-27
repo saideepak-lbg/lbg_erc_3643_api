@@ -286,18 +286,18 @@ public class Token extends Contract {
         return agentAddedEventFlowable(filter);
     }
 
-   /* public static List<AgentRemovedEventResponse> getAgentRemovedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, transactionReceipt);
-        ArrayList<AgentRemovedEventResponse> responses = new ArrayList<AgentRemovedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            AgentRemovedEventResponse typedResponse = new AgentRemovedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<AgentRemovedEventResponse> getAgentRemovedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, transactionReceipt);
+//        ArrayList<AgentRemovedEventResponse> responses = new ArrayList<AgentRemovedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            AgentRemovedEventResponse typedResponse = new AgentRemovedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._agent = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static AgentRemovedEventResponse getAgentRemovedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AGENTREMOVED_EVENT, log);
@@ -318,20 +318,20 @@ public class Token extends Contract {
         return agentRemovedEventFlowable(filter);
     }
 
-   /* public static List<ApprovalEventResponse> getApprovalEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(APPROVAL_EVENT, transactionReceipt);
-        ArrayList<ApprovalEventResponse> responses = new ArrayList<ApprovalEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            ApprovalEventResponse typedResponse = new ApprovalEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.owner = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.spender = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<ApprovalEventResponse> getApprovalEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(APPROVAL_EVENT, transactionReceipt);
+//        ArrayList<ApprovalEventResponse> responses = new ArrayList<ApprovalEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            ApprovalEventResponse typedResponse = new ApprovalEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.owner = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.spender = (String) eventValues.getIndexedValues().get(1).getValue();
+//            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static ApprovalEventResponse getApprovalEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(APPROVAL_EVENT, log);
@@ -354,18 +354,18 @@ public class Token extends Contract {
         return approvalEventFlowable(filter);
     }
 
-   /* public static List<ComplianceAddedEventResponse> getComplianceAddedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(COMPLIANCEADDED_EVENT, transactionReceipt);
-        ArrayList<ComplianceAddedEventResponse> responses = new ArrayList<ComplianceAddedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            ComplianceAddedEventResponse typedResponse = new ComplianceAddedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._compliance = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<ComplianceAddedEventResponse> getComplianceAddedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(COMPLIANCEADDED_EVENT, transactionReceipt);
+//        ArrayList<ComplianceAddedEventResponse> responses = new ArrayList<ComplianceAddedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            ComplianceAddedEventResponse typedResponse = new ComplianceAddedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._compliance = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static ComplianceAddedEventResponse getComplianceAddedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(COMPLIANCEADDED_EVENT, log);
@@ -386,18 +386,18 @@ public class Token extends Contract {
         return complianceAddedEventFlowable(filter);
     }
 
-    /*public static List<IdentityRegistryAddedEventResponse> getIdentityRegistryAddedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREGISTRYADDED_EVENT, transactionReceipt);
-        ArrayList<IdentityRegistryAddedEventResponse> responses = new ArrayList<IdentityRegistryAddedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            IdentityRegistryAddedEventResponse typedResponse = new IdentityRegistryAddedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._identityRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<IdentityRegistryAddedEventResponse> getIdentityRegistryAddedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(IDENTITYREGISTRYADDED_EVENT, transactionReceipt);
+//        ArrayList<IdentityRegistryAddedEventResponse> responses = new ArrayList<IdentityRegistryAddedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            IdentityRegistryAddedEventResponse typedResponse = new IdentityRegistryAddedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._identityRegistry = (String) eventValues.getIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static IdentityRegistryAddedEventResponse getIdentityRegistryAddedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(IDENTITYREGISTRYADDED_EVENT, log);
@@ -418,20 +418,20 @@ public class Token extends Contract {
         filter.addSingleTopic(EventEncoder.encode(IDENTITYREGISTRYADDED_EVENT));
         return identityRegistryAddedEventFlowable(filter);
     }
+//
+//    public static List<InitializedEventResponse> getInitializedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(INITIALIZED_EVENT, transactionReceipt);
+//        ArrayList<InitializedEventResponse> responses = new ArrayList<InitializedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            InitializedEventResponse typedResponse = new InitializedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.version = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
-    /*public static List<InitializedEventResponse> getInitializedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(INITIALIZED_EVENT, transactionReceipt);
-        ArrayList<InitializedEventResponse> responses = new ArrayList<InitializedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            InitializedEventResponse typedResponse = new InitializedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.version = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }
-*/
     public static InitializedEventResponse getInitializedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(INITIALIZED_EVENT, log);
         InitializedEventResponse typedResponse = new InitializedEventResponse();
@@ -451,19 +451,19 @@ public class Token extends Contract {
         return initializedEventFlowable(filter);
     }
 
-   /* public static List<OwnershipTransferredEventResponse> getOwnershipTransferredEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
-        ArrayList<OwnershipTransferredEventResponse> responses = new ArrayList<OwnershipTransferredEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.newOwner = (String) eventValues.getIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<OwnershipTransferredEventResponse> getOwnershipTransferredEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
+//        ArrayList<OwnershipTransferredEventResponse> responses = new ArrayList<OwnershipTransferredEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.newOwner = (String) eventValues.getIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static OwnershipTransferredEventResponse getOwnershipTransferredEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, log);
@@ -486,17 +486,17 @@ public class Token extends Contract {
         return ownershipTransferredEventFlowable(filter);
     }
 
-    /*public static List<PausedEventResponse> getPausedEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(PAUSED_EVENT, transactionReceipt);
-        ArrayList<PausedEventResponse> responses = new ArrayList<PausedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            PausedEventResponse typedResponse = new PausedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._userAddress = (String) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<PausedEventResponse> getPausedEvents(TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(PAUSED_EVENT, transactionReceipt);
+//        ArrayList<PausedEventResponse> responses = new ArrayList<PausedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            PausedEventResponse typedResponse = new PausedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._userAddress = (String) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static PausedEventResponse getPausedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(PAUSED_EVENT, log);
@@ -517,20 +517,20 @@ public class Token extends Contract {
         return pausedEventFlowable(filter);
     }
 
-    /*public static List<RecoverySuccessEventResponse> getRecoverySuccessEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(RECOVERYSUCCESS_EVENT, transactionReceipt);
-        ArrayList<RecoverySuccessEventResponse> responses = new ArrayList<RecoverySuccessEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            RecoverySuccessEventResponse typedResponse = new RecoverySuccessEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._lostWallet = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse._newWallet = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse._investorOnchainID = (String) eventValues.getIndexedValues().get(2).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<RecoverySuccessEventResponse> getRecoverySuccessEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(RECOVERYSUCCESS_EVENT, transactionReceipt);
+//        ArrayList<RecoverySuccessEventResponse> responses = new ArrayList<RecoverySuccessEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            RecoverySuccessEventResponse typedResponse = new RecoverySuccessEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._lostWallet = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse._newWallet = (String) eventValues.getIndexedValues().get(1).getValue();
+//            typedResponse._investorOnchainID = (String) eventValues.getIndexedValues().get(2).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static RecoverySuccessEventResponse getRecoverySuccessEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(RECOVERYSUCCESS_EVENT, log);
@@ -553,19 +553,19 @@ public class Token extends Contract {
         return recoverySuccessEventFlowable(filter);
     }
 
-    /*public static List<TokensFrozenEventResponse> getTokensFrozenEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TOKENSFROZEN_EVENT, transactionReceipt);
-        ArrayList<TokensFrozenEventResponse> responses = new ArrayList<TokensFrozenEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            TokensFrozenEventResponse typedResponse = new TokensFrozenEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._userAddress = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<TokensFrozenEventResponse> getTokensFrozenEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TOKENSFROZEN_EVENT, transactionReceipt);
+//        ArrayList<TokensFrozenEventResponse> responses = new ArrayList<TokensFrozenEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            TokensFrozenEventResponse typedResponse = new TokensFrozenEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._userAddress = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static TokensFrozenEventResponse getTokensFrozenEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(TOKENSFROZEN_EVENT, log);
@@ -587,19 +587,19 @@ public class Token extends Contract {
         return tokensFrozenEventFlowable(filter);
     }
 
-    /*public static List<TokensUnfrozenEventResponse> getTokensUnfrozenEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TOKENSUNFROZEN_EVENT, transactionReceipt);
-        ArrayList<TokensUnfrozenEventResponse> responses = new ArrayList<TokensUnfrozenEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            TokensUnfrozenEventResponse typedResponse = new TokensUnfrozenEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._userAddress = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<TokensUnfrozenEventResponse> getTokensUnfrozenEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TOKENSUNFROZEN_EVENT, transactionReceipt);
+//        ArrayList<TokensUnfrozenEventResponse> responses = new ArrayList<TokensUnfrozenEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            TokensUnfrozenEventResponse typedResponse = new TokensUnfrozenEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._userAddress = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static TokensUnfrozenEventResponse getTokensUnfrozenEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(TOKENSUNFROZEN_EVENT, log);
@@ -621,20 +621,20 @@ public class Token extends Contract {
         return tokensUnfrozenEventFlowable(filter);
     }
 
-    /*public static List<TransferEventResponse> getTransferEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRANSFER_EVENT, transactionReceipt);
-        ArrayList<TransferEventResponse> responses = new ArrayList<TransferEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            TransferEventResponse typedResponse = new TransferEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<TransferEventResponse> getTransferEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRANSFER_EVENT, transactionReceipt);
+//        ArrayList<TransferEventResponse> responses = new ArrayList<TransferEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            TransferEventResponse typedResponse = new TransferEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
+//            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static TransferEventResponse getTransferEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(TRANSFER_EVENT, log);
@@ -657,18 +657,18 @@ public class Token extends Contract {
         return transferEventFlowable(filter);
     }
 
-   /* public static List<UnpausedEventResponse> getUnpausedEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(UNPAUSED_EVENT, transactionReceipt);
-        ArrayList<UnpausedEventResponse> responses = new ArrayList<UnpausedEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            UnpausedEventResponse typedResponse = new UnpausedEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._userAddress = (String) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<UnpausedEventResponse> getUnpausedEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(UNPAUSED_EVENT, transactionReceipt);
+//        ArrayList<UnpausedEventResponse> responses = new ArrayList<UnpausedEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            UnpausedEventResponse typedResponse = new UnpausedEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._userAddress = (String) eventValues.getNonIndexedValues().get(0).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static UnpausedEventResponse getUnpausedEventFromLog(Log log) {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(UNPAUSED_EVENT, log);
@@ -689,22 +689,22 @@ public class Token extends Contract {
         return unpausedEventFlowable(filter);
     }
 
-   /* public static List<UpdatedTokenInformationEventResponse> getUpdatedTokenInformationEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(UPDATEDTOKENINFORMATION_EVENT, transactionReceipt);
-        ArrayList<UpdatedTokenInformationEventResponse> responses = new ArrayList<UpdatedTokenInformationEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            UpdatedTokenInformationEventResponse typedResponse = new UpdatedTokenInformationEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse._newName = (byte[]) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse._newSymbol = (byte[]) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse._newOnchainID = (String) eventValues.getIndexedValues().get(2).getValue();
-            typedResponse._newDecimals = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            typedResponse._newVersion = (String) eventValues.getNonIndexedValues().get(1).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }*/
+//    public static List<UpdatedTokenInformationEventResponse> getUpdatedTokenInformationEvents(
+//            TransactionReceipt transactionReceipt) {
+//        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(UPDATEDTOKENINFORMATION_EVENT, transactionReceipt);
+//        ArrayList<UpdatedTokenInformationEventResponse> responses = new ArrayList<UpdatedTokenInformationEventResponse>(valueList.size());
+//        for (Contract.EventValuesWithLog eventValues : valueList) {
+//            UpdatedTokenInformationEventResponse typedResponse = new UpdatedTokenInformationEventResponse();
+//            typedResponse.log = eventValues.getLog();
+//            typedResponse._newName = (byte[]) eventValues.getIndexedValues().get(0).getValue();
+//            typedResponse._newSymbol = (byte[]) eventValues.getIndexedValues().get(1).getValue();
+//            typedResponse._newOnchainID = (String) eventValues.getIndexedValues().get(2).getValue();
+//            typedResponse._newDecimals = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+//            typedResponse._newVersion = (String) eventValues.getNonIndexedValues().get(1).getValue();
+//            responses.add(typedResponse);
+//        }
+//        return responses;
+//    }
 
     public static UpdatedTokenInformationEventResponse getUpdatedTokenInformationEventFromLog(
             Log log) {

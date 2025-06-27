@@ -15,13 +15,13 @@ import java.util.List;
 public class Transaction {
 
     @Id
-    @Column(name = "transaction_hash", length = 100)
+    @Column(name = "transaction_hash", length = 250)
     private String transactionHash;
 
     @Column(name = "transaction_index")
     private Integer transactionIndex;
 
-    @Column(name = "block_hash", length = 100)
+    @Column(name = "block_hash", length = 250)
     private String blockHash;
 
     @Column(name = "block_number")
@@ -33,19 +33,19 @@ public class Transaction {
     @Column(name = "gas_used")
     private Long gasUsed;
 
-    @Column(name = "contract_address", length = 100)
+    @Column(name = "contract_address", length = 250)
     private String contractAddress;
 
-    @Column(name = "root", length = 100)
+    @Column(name = "root", length = 250)
     private String root;
 
-    @Column(name = "status", length = 30)
+    @Column(name = "status", length = 100)
     private String status;
 
-    @Column(name = "from_address", length = 100)
+    @Column(name = "from_address", length = 250)
     private String fromAddress;
 
-    @Column(name = "to_address", length = 100)
+    @Column(name = "to_address", length = 250)
     private String toAddress;
 
 
@@ -62,7 +62,7 @@ public class Transaction {
     private Boolean statusOk;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type", length = 20)
+    @Column(name = "transaction_type", length = 100)
     private TransactionType transactionType;
 
     public String getTransactionHash() {
