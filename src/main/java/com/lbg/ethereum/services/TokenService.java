@@ -8,13 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface TokenService {
 
-    ResponseEntity<AddClaimResponseDto> addClaim(AddClaimDto addClaimDto);
-    ResponseEntity<AddClaimTopicReponseDto> addClaimTopic(AddClaimTopicDto addClaimTopicDto);
-    ResponseEntity<RemoveClaimTopicResponseDto> removeClaimTopic(RemoveClaimTopicDto removeClaimTopicDto);
-    ResponseEntity<GetClaimTopicsResponseDto> getClaimTopics(GetClaimTopicsDto getClaimTopicsDto);
-    ResponseEntity<AddTrustedIssuerClaimTopicResponseDto> addTrustedIssuerClaimTopic(AddTrustedIssuerClaimTopicsDto addTrustedIssuerClaimTopicDto);
-    ResponseEntity<UpdateTrustedIssuerClaimTopicResponseDto> updateTrustedIssuerClaimTopic(UpdateTrustedIssuerClaimTopicsDto updateTrustedIssuerClaimTopicsDto);
-
     ResponseEntity<GetUserTokenResponseDto> getUserTokenBalance(GetUserTokensDto getUserTokensDto);
     ResponseEntity<ApproveUserTokensForTransferResponse> approveUserTokensForTransfer(ApproveUserTokensForTransferDto approveUserTokensForTransferDto);
     ResponseEntity<TransferTokensReponseDto> transferTokens(TransferTokensDto transferTokensDto);

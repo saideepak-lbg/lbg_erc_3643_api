@@ -1,6 +1,7 @@
 package com.lbg.ethereum.services.impl;
 
 import com.lbg.ethereum.DTOs.*;
+import com.lbg.ethereum.contracts.IImplementationAuthority;
 import com.lbg.ethereum.contracts.Identity;
 import com.lbg.ethereum.contracts.IdentityProxy;
 import com.lbg.ethereum.contracts.IdentityRegistry;
@@ -59,7 +60,8 @@ public class UserServiceImpl implements UserService {
         TransactionReceipt txReceipt;
         final String identityImplementationAuthorityAddress = environment.getProperty("identityImplementationAuthority_smart_contract_address");
         try {
-            Credentials credentials = Credentials.create(environment.getProperty(onChainIdCreationDto.getSigner()+"PrivateKey"));// This is your "signer"
+            Credentials credentials = Credentials.create(environment.getProperty(onChainIdCreationDto.getSigner()+"PrivateKey"));
+            // This is your "signer"
             IdentityProxy identityProxy = IdentityProxy.deploy(
                     web3j,
                     credentials,
@@ -106,6 +108,7 @@ public class UserServiceImpl implements UserService {
             transactionRepository.save(transaction);
             userIdentityRepository.save(userIdentity);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new OnChainIdCreationException("Failed to create OnChain ID: " + e.getMessage(), e);
         }
         CreateOnChainIdResponse response = new CreateOnChainIdResponse();

@@ -126,7 +126,12 @@ public class ClaimServiceImpl implements ClaimService {
             Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(txReciept);
             transaction.setTransactionType(TransactionType.ADD_CLAIM);
             transactionRepository.save(transaction);
-
+            UserClaim userClaimEntity = userClaimRepository.findByUserIdentityAndClaimTopicName(
+                    addClaimDto.getIdentityAddress(), addClaimDto.getTopic());
+            if(userClaimEntity != null) {
+                throw new ClaimException("Claim already exists for this identity and topic: " + addClaimDto.getTopic());
+            }
+            // Create and save UserClaim entity
             UserClaim userClaim = new UserClaim();
             Claim claim = claimRepository.findByTopicName(addClaimDto.getTopic());
             userClaim.setClaim(claim);
@@ -189,7 +194,10 @@ public class ClaimServiceImpl implements ClaimService {
           Transaction trasaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(txReciept);
 
           trasaction.setTransactionType(TransactionType.ADD_CLAIM_TOPIC);
-
+          Claim ClaimEntity = claimRepository.findByTopicName(addClaimTopicDto.getTopic());
+          if(ClaimEntity != null) {
+              throw new ClaimException("Claim topic already exists: " + addClaimTopicDto.getTopic());
+          }
           Claim claim = new Claim();
           claim.setTopicName(topicString);
           claim.setSigner(userRepository.findByUserName(addClaimTopicDto.getSigner()).orElseThrow(

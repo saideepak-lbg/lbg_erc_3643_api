@@ -2,7 +2,16 @@ package com.lbg.ethereum.services.impl;
 
 import com.lbg.ethereum.DTOs.*;
 import com.lbg.ethereum.contracts.*;
+import com.lbg.ethereum.entities.transactions.Transaction;
+import com.lbg.ethereum.entities.users.UserEntity;
+import com.lbg.ethereum.entities.users.UserIdentity;
+import com.lbg.ethereum.enums.TransactionType;
+import com.lbg.ethereum.exception.handlers.TokenException;
+import com.lbg.ethereum.repository.*;
 import com.lbg.ethereum.services.TokenService;
+import com.lbg.ethereum.entities.Tokens.*;
+import com.lbg.ethereum.utils.TransactionMapper;
+import org.apache.catalina.User;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +31,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.utils.Numeric;
 import org.web3j.utils.Bytes;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -32,265 +42,32 @@ public class TokenServiceImpl implements TokenService {
 
     private final Web3j web3j;
     Environment environment;
+    TokenRepository tokenRepository;
+    TokenTransactionRepository tokenTransactionRepository;
+    UserRepository userRepository;
+    UserIdentityRepository userIdentityRepository;
+    TransactionRepository transactionRepository;
 
-    public TokenServiceImpl(Web3j web3j, Environment environment) {
+    public TokenServiceImpl(Web3j web3j,
+                            Environment environment,
+                            TokenRepository tokenRepository,
+                            TokenTransactionRepository tokenTransactionRepository,
+                            UserRepository userRepository,
+                            UserIdentityRepository userIdentityRepository,
+                            TransactionRepository transactionRepository) {
         this.web3j = web3j;
         this.environment = environment;
+        this.tokenRepository = tokenRepository;
+        this.tokenTransactionRepository = tokenTransactionRepository;
+        this.userRepository = userRepository;
+        this.userIdentityRepository = userIdentityRepository;
+        this.transactionRepository = transactionRepository;
     }
 
-
-
-
-
-    @Override
-    public ResponseEntity<AddClaimResponseDto> addClaim(AddClaimDto addClaimDto) {
-        AddClaimResponseDto response = new AddClaimResponseDto();
-        try {
-            Credentials userSigner = Credentials.create(environment.getProperty(addClaimDto.getSigner() + "PrivateKey"));
-            Credentials claimIssuer = Credentials.create(environment.getProperty("claimIssuerSignPrivateKey"));
-
-            // Load the Identity contract
-            Identity identity = Identity.load(addClaimDto.getIdentityAddress(), web3j, userSigner, new DefaultGasProvider());
-
-            // Hash the topic
-            byte[] topicHash = org.web3j.crypto.Hash.sha3(addClaimDto.getTopic().getBytes());
-            BigInteger topicBigInt = new BigInteger(1, topicHash);
-
-            // Prepare claim data
-            byte[] dataBytes = addClaimDto.getData().getBytes("UTF-8");
-
-            // Encode and hash for signature
-            Function function = new Function(
-                    "", // method name is not used for parameter encoding
-                    Arrays.asList(
-                            new Address(addClaimDto.getIdentityAddress()),
-                            new Uint256(topicBigInt),
-                            new DynamicBytes(dataBytes)
-                    ),
-                    Collections.emptyList()
-            );
-
-// Encode the function and remove the method selector (first 4 bytes)
-            String encodedHex = FunctionEncoder.encode(function).substring(8); // skip "0x" and 4 bytes (8 hex chars)
-            byte[] encoded = Numeric.hexStringToByteArray(encodedHex);
-            byte[] hash = Hash.sha3(encoded);
-            // Sign the claim
-            org.web3j.crypto.Sign.SignatureData signatureData = Sign.signMessage(hash, claimIssuer.getEcKeyPair());
-            String signature = Numeric.toHexString(signatureData.getR()) +
-                    Numeric.toHexString(signatureData.getS()).substring(2) +
-                    Numeric.toHexString(new byte[]{signatureData.getV()[0]}).substring(2);
-
-            // Call addClaim on the contract
-//            TransactionReceipt tx = identity.addClaim(
-//                    topicBigInt,
-//                    BigInteger.valueOf(addClaimDto.getScheme()),
-//                    claimIssuer.getAddress(),
-//                    signature.getBytes(),
-//                    dataBytes,
-//                    ""
-//            ).send();
-//            response.setStatusCode(200);
-//            response.setMessage("Claim added successfully");
-//            response.setReceipt(tx);
-
-
-        } catch (Exception e) {
-           throw new RuntimeException("Failed to add claim: " + e.getMessage(), e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @Override
-    public ResponseEntity<AddClaimTopicReponseDto> addClaimTopic(AddClaimTopicDto addClaimTopicDto) {
-        try {
-            // 1. Hash the topic string to uint256 (like ethers.utils.id)
-            String topicHash = Hash.sha3String(addClaimTopicDto.getTopic()); // returns 0x...
-            BigInteger topic = new BigInteger(topicHash.substring(2), 16);
-
-            // 2. Load the ClaimTopicsRegistry contract
-            String registryAddress = environment.getProperty("claimTopicsRegistry_smart_contract_address");
-            Credentials signer = Credentials.create(environment.getProperty(addClaimTopicDto.getSigner() + "PrivateKey")); // Signer credentials
-            ClaimTopicsRegistry registry = ClaimTopicsRegistry.load(
-                    registryAddress,
-                    web3j,
-                    signer,
-                    new DefaultGasProvider()
-            );
-
-            // 3. Call addClaimTopic on the contract
-            TransactionReceipt tx = registry.addClaimTopic(topic).send();
-            return ResponseEntity.ok(new AddClaimTopicReponseDto() {{
-                ;
-                setMessage("Claim topic added successfully");
-                setTransactionReceipt(tx);
-            }});
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to add claim topic: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public ResponseEntity<RemoveClaimTopicResponseDto> removeClaimTopic(RemoveClaimTopicDto removeClaimTopicDto) {
-        RemoveClaimTopicResponseDto response = new RemoveClaimTopicResponseDto();
-        try {
-            // Get contract address from DTO or environment
-            String claimTopicsRegistryAddress = removeClaimTopicDto.getClaimTopicsRegistryAddress();
-            if (claimTopicsRegistryAddress == null || claimTopicsRegistryAddress.isEmpty()) {
-                claimTopicsRegistryAddress = environment.getProperty("claimTopicsRegistry_smart_contract_address");
-            }
-
-            // Get signer credentials
-            String privateKey = environment.getProperty(removeClaimTopicDto.getSigner() + "PrivateKey");
-            Credentials signer = Credentials.create(privateKey);
-
-            // Load the ClaimTopicsRegistry contract
-            ClaimTopicsRegistry registry = ClaimTopicsRegistry.load(
-                    claimTopicsRegistryAddress,
-                    web3j,
-                    signer,
-                    new DefaultGasProvider()
-            );
-
-            // Call removeClaimTopic
-            BigInteger claimTopic = topicToUint256(removeClaimTopicDto.getTopic());
-            TransactionReceipt tx = registry.removeClaimTopic(claimTopic).send();
-
-            response.setMessage("Claim removed successfully, user won't require this topic claim for the token minting and transfer");
-            response.setTransactionReceipt(tx);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.setMessage("Failed to remove claim topic: " + e.getMessage());
-            response.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
-        }
-    }
-
-    @Override
-    public ResponseEntity<GetClaimTopicsResponseDto> getClaimTopics(GetClaimTopicsDto getClaimTopicsDto) {
-        try {
-            // Load the ClaimTopicsRegistry contract
-            String registryAddress = environment.getProperty("claimTopicsRegistry_smart_contract_address");
-            //lbg_privateKey is the signer address
-            Credentials signer = Credentials.create(environment.getProperty(getClaimTopicsDto.getSigner() + "PrivateKey"));
-            ClaimTopicsRegistry registry = ClaimTopicsRegistry.load(
-                    registryAddress,
-                    web3j,
-                    signer,
-                    new DefaultGasProvider()
-            );
-            // Call getClaimTopics (returns List<BigInteger>)
-            List<BigInteger> claimTopics = registry.getClaimTopics().send();
-            return ResponseEntity.ok(new GetClaimTopicsResponseDto() {{
-                setMessage("Claim topics retrieved successfully");
-                setClaimTopics(claimTopics.stream()
-                        .map(topic -> Numeric.toHexString(Bytes.trimLeadingZeroes(topic.toByteArray())))
-                        .collect(Collectors.toList()));
-            }});
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage() != null ? e.getMessage() : "Failed to get claim topic", e);
-        }
-    }
-
-    @Override
-    public ResponseEntity<AddTrustedIssuerClaimTopicResponseDto> addTrustedIssuerClaimTopic(AddTrustedIssuerClaimTopicsDto addTrustedIssuerClaimTopicDto) {
-        AddTrustedIssuerClaimTopicResponseDto response = new AddTrustedIssuerClaimTopicResponseDto();
-        try {
-            // Get contract address from body or environment
-            String registryAddress = addTrustedIssuerClaimTopicDto.getTrustedIssuersRegistryContractAddress();
-            if (registryAddress == null || registryAddress.isEmpty()) {
-                registryAddress = environment.getProperty("trustedIssuersRegistry_smart_contract_address");
-            }
-
-            // Get signer credentials
-            String privateKey = environment.getProperty(addTrustedIssuerClaimTopicDto.getSigner() + "PrivateKey");
-            Credentials signer = Credentials.create(privateKey);
-
-            // Load the TrustedIssuersRegistry contract
-            TrustedIssuersRegistry registry = TrustedIssuersRegistry.load(
-                    registryAddress,
-                    web3j,
-                    signer,
-                    new DefaultGasProvider()
-            );
-
-            // Convert topics to BigInteger list
-            List<BigInteger> claimTopics = addTrustedIssuerClaimTopicDto.getTopics().stream()
-                    .map(BigInteger::new)
-                    .collect(Collectors.toList());
-
-            // Get claimIssuerContractAddress from body or environment
-            String claimIssuerAddress = addTrustedIssuerClaimTopicDto.getClaimIssuerContractAddress();
-            if (claimIssuerAddress == null || claimIssuerAddress.isEmpty()) {
-                claimIssuerAddress = environment.getProperty("claimIssuerContract_smart_contract_address");
-            }
-
-            // Call addTrustedIssuer
-            TransactionReceipt tx = registry.addTrustedIssuer(
-                    claimIssuerAddress,
-                    claimTopics
-            ).send();
-
-            response.setMessage("Trusted issuer claim topics added successfully");
-            response.setTransactionReceipt(tx);
-        } catch (Exception e) {
-            response.setMessage("Failed to add trusted issuer claim topics: " + e.getMessage());
-            response.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @Override
-    public ResponseEntity<UpdateTrustedIssuerClaimTopicResponseDto> updateTrustedIssuerClaimTopic(UpdateTrustedIssuerClaimTopicsDto updateTrustedIssuerClaimTopicsDto) {
-        UpdateTrustedIssuerClaimTopicResponseDto response = new UpdateTrustedIssuerClaimTopicResponseDto();
-        try {
-            // Get contract address from body or environment
-            String registryAddress = updateTrustedIssuerClaimTopicsDto.getTrustedIssuersRegistryContractAddress();
-            if (registryAddress == null || registryAddress.isEmpty()) {
-                registryAddress = environment.getProperty("trustedIssuersRegistry_smart_contract_address");
-            }
-
-            // Get signer credentials
-            String privateKey = environment.getProperty(updateTrustedIssuerClaimTopicsDto.getSigner() + "PrivateKey");
-            Credentials signer = Credentials.create(privateKey);
-
-            // Load the TrustedIssuersRegistry contract
-            TrustedIssuersRegistry registry = TrustedIssuersRegistry.load(
-                    registryAddress,
-                    web3j,
-                    signer,
-                    new DefaultGasProvider()
-            );
-
-            // Convert topics to BigInteger list
-            List<BigInteger> claimTopics = updateTrustedIssuerClaimTopicsDto.getTopics().stream()
-                    .map(BigInteger::new)
-                    .collect(Collectors.toList());
-
-            // Get claimIssuerContractAddress from body or environment
-            String claimIssuerAddress = updateTrustedIssuerClaimTopicsDto.getClaimIssuerContractAddress();
-            if (claimIssuerAddress == null || claimIssuerAddress.isEmpty()) {
-                claimIssuerAddress = environment.getProperty("claimIssuerContract_smart_contract_address");
-            }
-
-            // Call updateIssuerClaimTopics
-            TransactionReceipt tx = registry.updateIssuerClaimTopics(
-                    claimIssuerAddress,
-                    claimTopics
-            ).send();
-
-            response.setMessage("Trusted issuer claim topics updated successfully");
-            response.setTransactionReceipt(tx);
-        } catch (Exception e) {
-            response.setMessage("Failed to update trusted issuer claim topics: " + e.getMessage());
-            response.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
 
     @Override
     public ResponseEntity<GetUserTokenResponseDto> getUserTokenBalance(GetUserTokensDto getUserTokensDto) {
+        GetUserTokenResponseDto response;
         try {
             // Use token address from body or from environment/config
             String tokenAddress = getUserTokensDto.getTokenAddress();
@@ -312,27 +89,27 @@ public class TokenServiceImpl implements TokenService {
             // Get the user's address (from body or env)
             String userAddress = getUserTokensDto.getUserAddress();
 
-            userAddress = environment.getProperty(getUserTokensDto.getUserAddress());
+            //userAddress = environment.getProperty(getUserTokensDto.getUserAddress());
 
 
             // Call balanceOf
             BigInteger balance = token.balanceOf(userAddress).send();
 
             // Return as a response object
-            GetUserTokenResponseDto response = new GetUserTokenResponseDto();
+            response = new GetUserTokenResponseDto();
             response.setMessage("User token balance retrieved successfully");
             response.setBalance(balance.toString());
-            // or set tx details if needed
 
-            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage() != null ? e.getMessage() : "Failed to get user tokens", e);
+            throw new TokenException(e.getMessage() != null ? e.getMessage() : "Failed to get user tokens", e);
         }
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<ApproveUserTokensForTransferResponse> approveUserTokensForTransfer(ApproveUserTokensForTransferDto approveUserTokensForTransferDto) {
         ApproveUserTokensForTransferResponse response = new ApproveUserTokensForTransferResponse();
+        TransactionReceipt tx;
         try {
             //if needed can be taken from request body
             String tokenAddress = environment.getProperty("token_smart_contract_address");
@@ -345,23 +122,40 @@ public class TokenServiceImpl implements TokenService {
                     new DefaultGasProvider()
             );
 
-            String userAddress = approveUserTokensForTransferDto.getUserAddress();
-            TransactionReceipt tx = token.approve(environment.getProperty(userAddress), approveUserTokensForTransferDto.getAmount()).send();
+            String userAddress = approveUserTokensForTransferDto.getUserAddress();//identity address
+            tx = token.approve(userAddress, approveUserTokensForTransferDto.getAmount()).send();
 
+            if (tx == null || !tx.isStatusOK()) {
+                throw new RuntimeException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.APPROVE_TOKENS_FOR_TRANSFER);
+            transactionRepository.save(transaction);
 
-            response.setMessage("User is approved to transfer the requested amount of tokens successfully");
-            response.setReceipt(tx);
+            UserEntity userEntity = userRepository.findByWalletKey(approveUserTokensForTransferDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + approveUserTokensForTransferDto.getUserAddress()));
+
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for user: " + userEntity.getUserName()));
+
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(tokenTransaction);
+
         } catch (Exception e) {
-            response.setMessage("Failed to get user tokens: " + e.getMessage());
-            response.setReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
+            e.printStackTrace();
+            throw new TokenException("Failed to approve user tokens for transfer: " + e.getMessage(), e);
         }
+        response.setMessage("User is approved to transfer the requested amount of tokens successfully");
+        response.setReceipt(tx);
         return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<TransferTokensReponseDto> transferTokens(TransferTokensDto transferTokensDto) {
         TransferTokensReponseDto transferTokensReponseDto = new TransferTokensReponseDto();
+        TransactionReceipt tx;
         try {
             // Use token address from body or from environment/config
             String tokenAddress = transferTokensDto.getTokenAddress();
@@ -386,21 +180,41 @@ public class TokenServiceImpl implements TokenService {
             BigInteger amount = BigInteger.valueOf(transferTokensDto.getAmount());
 
             // Call transfer
-            TransactionReceipt tx = token.transfer(environment.getProperty(userAddress), amount).send();
+            tx = token.transfer(userAddress, amount).send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+            UserEntity userEntity = userRepository.findByWalletKey(transferTokensDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + transferTokensDto.getUserAddress()));
 
-            transferTokensReponseDto.setMessage("able to transfer tokens successfully");
-            transferTokensReponseDto.setTransactionReceipt(tx);
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.TRANSFER_TOKENS);
+            transactionRepository.save(transaction);
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for user: " + userEntity.getUserName()));
+
+            tokenEntity.setTokenName(environment.getProperty("token_name"));
+            tokenEntity.setTokenBalance(tokenEntity.getTokenBalance().equals(BigDecimal.ZERO) ? BigDecimal.valueOf(transferTokensDto.getAmount()) :
+                    tokenEntity.getTokenBalance().subtract(BigDecimal.valueOf(transferTokensDto.getAmount())));
+            tokenRepository.save(tokenEntity);
+
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(tokenTransaction);
+
         } catch (Exception e) {
-            transferTokensReponseDto.setMessage("Failed to transfer tokens: " + e.getMessage());
-            transferTokensReponseDto.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(transferTokensReponseDto);
+            throw new TokenException("Failed to transfer tokens: " + e.getMessage(), e);
         }
+        transferTokensReponseDto.setMessage("able to transfer tokens successfully");
+        transferTokensReponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(transferTokensReponseDto);
     }
 
     @Override
     public ResponseEntity<FreezeTokenResponseDto> freezeToken(FreezeTokensDto freezeTokensDto) {
         FreezeTokenResponseDto freezeTokenResponseDto = new FreezeTokenResponseDto();
+        TransactionReceipt tx;
         try {
             // Use token address from body or from environment/config
             String tokenAddress = environment.getProperty("token_smart_contract_address");
@@ -417,26 +231,45 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Get the user's address and amount
-            String userAddress = freezeTokensDto.getUserAddress();
+            String userAddress = freezeTokensDto.getUserAddress();//identity address
             BigInteger amount = freezeTokensDto.getFreezeAmount();
 
             // Call freezePartialTokens
-            TransactionReceipt tx = token.freezePartialTokens(environment.getProperty(userAddress), amount).send();
+            tx = token.freezePartialTokens(userAddress, amount).send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.FREEZE_TOKENS);
+            transactionRepository.save(transaction);
+            UserEntity userEntity = userRepository.findByWalletKey(freezeTokensDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + freezeTokensDto.getUserAddress()));
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for user: " + userEntity.getUserName()));
+            tokenEntity.setTokenName(environment.getProperty("token_name"));
+            tokenEntity.setTokenBalance(tokenEntity.getTokenBalance().subtract(
+                    new BigDecimal(freezeTokensDto.getFreezeAmount())));
+            tokenRepository.save(tokenEntity);
 
-            freezeTokenResponseDto.setMessage("User tokens frozen successfully");
-            freezeTokenResponseDto.setTransactionReceipt(tx);
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(tokenTransaction);
 
         } catch (Exception e) {
             freezeTokenResponseDto.setMessage("Failed to freeze tokens: " + e.getMessage());
             freezeTokenResponseDto.setTransactionReceipt(null);
             return ResponseEntity.internalServerError().body(freezeTokenResponseDto);
         }
+        freezeTokenResponseDto.setMessage("User tokens frozen successfully");
+        freezeTokenResponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(freezeTokenResponseDto);
     }
 
     @Override
     public ResponseEntity<UnFreezeTokenResponseDto> unFreezeToken(UnFreezeTokensDto unFreezeTokensDto) {
         UnFreezeTokenResponseDto responseDto = new UnFreezeTokenResponseDto();
+        TransactionReceipt tx;
         try {
             // Get token address from body or environment
             String tokenAddress = unFreezeTokensDto.getTokenAddress();
@@ -457,24 +290,47 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call unfreezePartialTokens(userAddress, amount)
-            TransactionReceipt tx = token.unfreezePartialTokens(
-                    environment.getProperty(unFreezeTokensDto.getUserAddress()),
+            tx = token.unfreezePartialTokens(
+                    unFreezeTokensDto.getUserAddress(),
                     unFreezeTokensDto.getUnFreezeAmount()
             ).send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.UNFREEZE_TOKENS);
+            transactionRepository.save(transaction);
 
-            responseDto.setMessage("User tokens unfreezed successfully");
-            responseDto.setTransactionReceipt(tx);
+            UserEntity userEntity = userRepository.findByWalletKey(unFreezeTokensDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + unFreezeTokensDto.getUserAddress()));
+
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for user: " + userEntity.getUserName()));
+            tokenEntity.setTokenName(environment.getProperty("token_name"));
+            tokenEntity.setTokenBalance(tokenEntity.getTokenBalance().add(
+                    new BigDecimal(unFreezeTokensDto.getUnFreezeAmount())));
+            tokenRepository.save(tokenEntity);
+
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(tokenTransaction);
+
         } catch (Exception e) {
             responseDto.setMessage("Failed to unfreeze tokens: " + e.getMessage());
             responseDto.setTransactionReceipt(null);
             return ResponseEntity.internalServerError().body(responseDto);
         }
+
+        responseDto.setMessage("User tokens unfreezed successfully");
+        responseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok().body(responseDto);
     }
 
     @Override
     public ResponseEntity<PauseTokenResponseDto> pauseToken(PauseTokenDto pauseTokensDto) {
         PauseTokenResponseDto pauseTokenResponseDto = new PauseTokenResponseDto();
+        TransactionReceipt tx;
         try {
             // Get token address from environment or config
             String tokenAddress = environment.getProperty("token_smart_contract_address");
@@ -492,21 +348,27 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call pause()
-            TransactionReceipt tx = token.pause().send();
+            tx = token.pause().send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
 
-            pauseTokenResponseDto.setMessage("Token paused successfully");
-            pauseTokenResponseDto.setTransactionReceipt(tx);
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.PAUSE_TOKEN);
+            transactionRepository.save(transaction);
+
         } catch (Exception e) {
-            pauseTokenResponseDto.setMessage("Failed to pause token: " + e.getMessage());
-            pauseTokenResponseDto.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(pauseTokenResponseDto);
+            throw new TokenException("Failed to pause token: " + e.getMessage(), e);
         }
+        pauseTokenResponseDto.setMessage("Token paused successfully");
+        pauseTokenResponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(pauseTokenResponseDto);
     }
 
     @Override
     public ResponseEntity<UnPauseTokenResponseDto> unPauseToken(UnPauseTokenDto unPauseTokenDto) {
         UnPauseTokenResponseDto unPauseTokenResponseDto = new UnPauseTokenResponseDto();
+        TransactionReceipt tx;
         try {
             // Get token address from environment or config
             String tokenAddress = environment.getProperty("token_smart_contract_address");
@@ -524,21 +386,27 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call unpause()
-            TransactionReceipt tx = token.unpause().send();
+            tx = token.unpause().send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
 
-            unPauseTokenResponseDto.setMessage("Token unpaused successfully");
-            unPauseTokenResponseDto.setTransactionReceipt(tx);
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.UNPAUSE_TOKEN);
+            transactionRepository.save(transaction);
+
         } catch (Exception e) {
-            unPauseTokenResponseDto.setMessage("Failed to unpause token: " + e.getMessage());
-            unPauseTokenResponseDto.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(unPauseTokenResponseDto);
+            throw new TokenException("Failed to unpause token: " + e.getMessage(), e);
         }
+        unPauseTokenResponseDto.setMessage("Token unpaused successfully");
+        unPauseTokenResponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(unPauseTokenResponseDto);
     }
 
     @Override
     public ResponseEntity<BurnTokensResponseDto> burnTokens(BurnTokensDto burnTokensDto) {
         BurnTokensResponseDto burnTokensResponseDto = new BurnTokensResponseDto();
+        TransactionReceipt tx;
         try {
             // Get token address from body or environment
             String tokenAddress = burnTokensDto.getTokenAddress();
@@ -559,24 +427,45 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call burn(userAddress, amount)
-            TransactionReceipt tx = token.burn(
+            tx = token.burn(
                     environment.getProperty(burnTokensDto.getUserAddress()),
                     BigInteger.valueOf(burnTokensDto.getAmount())
             ).send();
 
-            burnTokensResponseDto.setMessage("User tokens burned successfully");
-            burnTokensResponseDto.setTransactionReceipt(tx);
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.BURN_TOKENS);
+            transactionRepository.save(transaction);
+
+            UserEntity userEntity = userRepository.findByWalletKey(burnTokensDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + burnTokensDto.getUserAddress()));
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for user: " + userEntity.getUserName()));
+
+            tokenEntity.setTokenBalance(tokenEntity.getTokenBalance().subtract(BigDecimal.valueOf(burnTokensDto.getAmount())));
+            tokenRepository.save(tokenEntity);
+
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+
+            tokenTransactionRepository.save(tokenTransaction);
+
         } catch (Exception e) {
-            burnTokensResponseDto.setMessage("Failed to burn tokens: " + e.getMessage());
-            burnTokensResponseDto.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(burnTokensResponseDto);
+            throw new TokenException("Failed to burn tokens: " + e.getMessage(), e);
         }
+        burnTokensResponseDto.setMessage("User tokens burned successfully");
+        burnTokensResponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(burnTokensResponseDto);
     }
 
     @Override
     public ResponseEntity<TransferApprovedTokensResponseDto> transferApprovedTokens(TransferApprovedTokensDto transferApprovedTokensDto) {
         TransferApprovedTokensResponseDto transferApprovedTokensResponseDto = new TransferApprovedTokensResponseDto();
+        TransactionReceipt tx;
         try {
             // Get token address from body or environment
             String tokenAddress = transferApprovedTokensDto.getTokenAddress();
@@ -597,19 +486,58 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call transferFrom(from, to, amount)
-            TransactionReceipt tx = token.transferFrom(
-                    environment.getProperty(transferApprovedTokensDto.getFromAddress()),
-                    environment.getProperty(transferApprovedTokensDto.getToAddress()),
+            tx = token.transferFrom(
+                    transferApprovedTokensDto.getFromAddress(),
+                    transferApprovedTokensDto.getToAddress(),
                     BigInteger.valueOf(transferApprovedTokensDto.getTransferAmount())
             ).send();
-            transferApprovedTokensResponseDto.setMessage("Approved tokens transferred successfully");
-            transferApprovedTokensResponseDto.setTransactionReceipt(tx);
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.TRANSFER_APPROVED_TOKENS);
+            transactionRepository.save(transaction);
+
+            UserEntity sender = userRepository.findByWalletKey(transferApprovedTokensDto.getFromAddress()).
+                    orElseThrow(() -> new TokenException("sender not found for address: " + transferApprovedTokensDto.getFromAddress()));
+            UserEntity recipient = userRepository.findByWalletKey(transferApprovedTokensDto.getToAddress()).
+                    orElseThrow(() -> new TokenException("recipient not found for address: " + transferApprovedTokensDto.getToAddress()));
+
+            // Update token balances
+            TokenEntity senderTokenEntity = tokenRepository.findByUserId(sender.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for sender: " + sender.getUserName()));
+
+            TokenEntity recipientTokenEntity = tokenRepository.findByUserId(recipient.getUserId()).orElseThrow(() ->
+                    new TokenException("Token not found for recipient: " + recipient.getUserName()));
+
+            // Update sender's token balance
+            senderTokenEntity.setTokenBalance(senderTokenEntity.getTokenBalance().subtract(BigDecimal.valueOf(transferApprovedTokensDto.getTransferAmount())));
+            // Update recipient's token balance
+            recipientTokenEntity.setTokenBalance(recipientTokenEntity.getTokenBalance().add(BigDecimal.valueOf(transferApprovedTokensDto.getTransferAmount())));
+
+            // Save updated token entities
+            tokenRepository.save(senderTokenEntity);
+            tokenRepository.save(recipientTokenEntity);
+
+            // Create and save token transaction
+            TokenTransaction senderTokenTransaction = new TokenTransaction();
+            senderTokenTransaction.setTokenId(senderTokenEntity.getTokenId());
+            senderTokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(senderTokenTransaction);
+
+            TokenTransaction recipientTokenTransaction = new TokenTransaction();
+            recipientTokenTransaction.setTokenId(recipientTokenEntity.getTokenId());
+            recipientTokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(recipientTokenTransaction);
+
 
         } catch (Exception e) {
-            transferApprovedTokensResponseDto.setMessage("Failed to transfer approved tokens: " + e.getMessage());
-            transferApprovedTokensResponseDto.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(transferApprovedTokensResponseDto);
+            throw new TokenException("Failed to transfer approved tokens: " + e.getMessage(), e);
         }
+
+        transferApprovedTokensResponseDto.setMessage("Approved tokens transferred successfully");
+        transferApprovedTokensResponseDto.setTransactionReceipt(tx);
         return ResponseEntity.ok(transferApprovedTokensResponseDto);
     }
 
@@ -628,7 +556,7 @@ public class TokenServiceImpl implements TokenService {
             Token token = Token.load(
                     tokenAddress,
                     web3j,
-                   signer, // No credentials needed for view methods
+                    signer, // No credentials needed for view methods
                     new DefaultGasProvider()
             );
 
@@ -638,58 +566,84 @@ public class TokenServiceImpl implements TokenService {
             Boolean paused = token.paused().send();
             BigInteger totalSupply = token.totalSupply().send();
 
-
             response.setName(name);
             response.setSymbol(symbol);
             response.setOwner(owner);
             response.setPaused(paused);
             response.setTotalSupply(totalSupply.toString());
             response.setMessage("Token details retrieved successfully");
+
+
         } catch (Exception e) {
-            response.setMessage("Failed to retrieve token details: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(response);
+            throw new TokenException("Failed to get token details: " + e.getMessage(), e);
         }
         return ResponseEntity.ok().body(response);
     }
 
     @Override
-    public ResponseEntity<MintTokenResponseDto> mintTokens(MintTokensDto mintTokensDto) {
+    public ResponseEntity<MintTokenResponseDto>
+    mintTokens(MintTokensDto mintTokensDto) {
         MintTokenResponseDto response = new MintTokenResponseDto();
-        try{
+        TransactionReceipt tx;
+        try {
             String tokenAddress = mintTokensDto.getTokenAddress();
-        if (tokenAddress == null || tokenAddress.isEmpty()) {
-            tokenAddress = environment.getProperty("token_smart_contract_address");
+            if (tokenAddress == null || tokenAddress.isEmpty()) {
+                tokenAddress = environment.getProperty("token_smart_contract_address");
+            }
+
+            // Get signer credentials
+            String privateKey = environment.getProperty(mintTokensDto.getSigner() + "PrivateKey");
+            Credentials tokenIssuer = Credentials.create(privateKey);
+
+            // Load the token contract
+            Token token = Token.load(
+                    tokenAddress,
+                    web3j,
+                    tokenIssuer,
+                    new DefaultGasProvider()
+            );
+
+            // Call mint(recipientAddress, amount)
+            tx = token.mint(
+                    mintTokensDto.getRecipientAddress(),
+                    BigInteger.valueOf(mintTokensDto.getAmount())
+            ).send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new RuntimeException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.MINT_TOKEN);
+
+            UserEntity userEntity = userRepository.findByWalletKey(mintTokensDto.getRecipientAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + mintTokensDto.getRecipientAddress()));
+
+            TokenEntity tokenEntity = tokenRepository.findByUserId(userEntity.getUserId()).orElseGet(TokenEntity::new);
+            tokenEntity.setUser(userEntity);
+            tokenEntity.setTokenBalance(tokenEntity.getTokenBalance().equals(BigDecimal.ZERO) ? BigDecimal.valueOf(mintTokensDto.getAmount()) :
+                    tokenEntity.getTokenBalance().add(BigDecimal.valueOf(mintTokensDto.getAmount())));
+            tokenEntity.setTokenName(environment.getProperty("token_name"));
+
+            tokenEntity = tokenRepository.save(tokenEntity);
+            transactionRepository.save(transaction);
+
+            TokenTransaction tokenTransaction = new TokenTransaction();
+            tokenTransaction.setTokenId(tokenEntity.getTokenId());
+            tokenTransaction.setTransactionHash(transaction.getTransactionHash());
+            tokenTransactionRepository.save(tokenTransaction);
+
+        } catch (Exception e) {
+            throw new TokenException("Failed to mint tokens: " + e.getMessage(), e);
         }
-
-        // Get signer credentials
-        String privateKey = environment.getProperty(mintTokensDto.getSigner()+"PrivateKey");
-        Credentials tokenIssuer = Credentials.create(privateKey);
-
-        // Load the token contract
-        Token token = Token.load(
-                tokenAddress,
-                web3j,
-                tokenIssuer,
-                new DefaultGasProvider()
-        );
-
-        // Call mint(recipientAddress, amount)
-        TransactionReceipt tx = token.mint(
-                environment.getProperty(mintTokensDto.getRecipientAddress()),
-                BigInteger.valueOf(mintTokensDto.getAmount())
-        ).send();
-
         response.setMessage("Tokens minted successfully");
         response.setTransactionReceipt(tx);
-    } catch (Exception e) {
-        throw new RuntimeException("Failed to mint tokens: " + e.getMessage(), e);
-    }
         return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<RecoverAccountResponseDto> recoverAccount(RecoverAccountDto recoverAccountDto) {
         RecoverAccountResponseDto response = new RecoverAccountResponseDto();
+        TransactionReceipt tx;
         try {
             // Use token address from environment/config
             String tokenAddress = environment.getProperty("token_smart_contract_address");
@@ -706,25 +660,35 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call recoveryAddress with lostWallet, newWallet, and userIdentity
-            TransactionReceipt tx = token.recoveryAddress(
-                    environment.getProperty(recoverAccountDto.getLostWalletAddress()),
-                    environment.getProperty(recoverAccountDto.getNewWalletAddress()),
+            tx = token.recoveryAddress(
+                    recoverAccountDto.getLostWalletAddress(),
+                    recoverAccountDto.getNewWalletAddress(),
                     recoverAccountDto.getUserIdentity()
             ).send();
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.RECOVER_ACCOUNT);
+            transactionRepository.save(transaction);
 
-            response.setMessage("User account recovered successfully");
-            response.setTransactionReceipt(tx);
+            UserEntity userEntity = userRepository.findByWalletKey(recoverAccountDto.getLostWalletAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + recoverAccountDto.getNewWalletAddress()));
+            userEntity.setWalletKey(recoverAccountDto.getNewWalletAddress());
+            userRepository.save(userEntity);
+
         } catch (Exception e) {
-            response.setMessage("Failed to recover account: " + e.getMessage());
-            response.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
+            throw new TokenException("Failed to recover account: " + e.getMessage(), e);
         }
+        response.setMessage("User account recovered successfully");
+        response.setTransactionReceipt(tx);
         return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<FreezeAccountResponseDto> freezeAccount(FreezeAccountDto freezeAccountDto) {
         FreezeAccountResponseDto response = new FreezeAccountResponseDto();
+        TransactionReceipt tx;
         try {
             // Use token address from body or from environment/config
             String tokenAddress = freezeAccountDto.getTokenAddress();
@@ -744,24 +708,37 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call setAddressFrozen with userAddress and status
-            TransactionReceipt tx = token.setAddressFrozen(
-                    environment.getProperty(freezeAccountDto.getUserAddress()),
+            tx = token.setAddressFrozen(
+                    freezeAccountDto.getUserAddress(),
                     freezeAccountDto.getStatus() != null ? freezeAccountDto.getStatus() : Boolean.TRUE // default to true if null
             ).send();
 
-            response.setMessage("User account frozen successfully");
-            response.setTransactionReceipt(tx);
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.FREEZE_ACCOUNT);
+            transactionRepository.save(transaction);
+
+            UserEntity userEntity = userRepository.findByWalletKey(freezeAccountDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + freezeAccountDto.getUserAddress()));
+
+            userEntity.setFrozen(true);
+            userRepository.save(userEntity);
+
         } catch (Exception e) {
-            response.setMessage("Failed to freeze account: " + e.getMessage());
-            response.setTransactionReceipt(null);
-            return ResponseEntity.internalServerError().body(response);
+            throw new TokenException("Failed to freeze account: " + e.getMessage(), e);
         }
+        response.setMessage("User account frozen successfully");
+        response.setTransactionReceipt(tx);
         return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<UnfreezeAccountResponseDto> unFreezeAccount(UnFreezeAccountDto unFreezeAccountDto) {
         UnfreezeAccountResponseDto response = new UnfreezeAccountResponseDto();
+        TransactionReceipt tx;
         try {
             // Use token address from body or from environment/config
             String tokenAddress = unFreezeAccountDto.getTokenAddress();
@@ -781,10 +758,24 @@ public class TokenServiceImpl implements TokenService {
             );
 
             // Call setAddressFrozen with userAddress and status
-            TransactionReceipt tx = token.setAddressFrozen(
-                    environment.getProperty(unFreezeAccountDto.getUserAddress()),
+            tx = token.setAddressFrozen(
+                    unFreezeAccountDto.getUserAddress(),
                     unFreezeAccountDto.getStatus() != null ? unFreezeAccountDto.getStatus() : Boolean.FALSE // default to false if null
             ).send();
+
+            if (tx == null || !tx.isStatusOK()) {
+                throw new TokenException("Transaction failed: " + (tx != null ? tx.getStatus() : "Unknown error"));
+            }
+
+            Transaction transaction = TransactionMapper.GenerateTransactionFromTransactionReceipt(tx);
+            transaction.setTransactionType(TransactionType.UNFREEZE_ACCOUNT);
+            transactionRepository.save(transaction);
+
+            UserEntity userEntity = userRepository.findByWalletKey(unFreezeAccountDto.getUserAddress()).
+                    orElseThrow(() -> new TokenException("User not found for address: " + unFreezeAccountDto.getUserAddress()));
+
+            userEntity.setFrozen(false);
+            userRepository.save(userEntity);
 
             response.setMessage("User account unfrozen successfully");
             response.setTransactionReceipt(tx);
@@ -798,36 +789,36 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public ResponseEntity<AddKeyResponseDto> addKey(AddkeyDto addkeyDto) {
-       AddKeyResponseDto addKeyResponseDto = new AddKeyResponseDto();
-       try {
-           Credentials managementSigner = Credentials.create(environment.getProperty("lbgPrivateKey"));
+        AddKeyResponseDto addKeyResponseDto = new AddKeyResponseDto();
+        try {
+            Credentials managementSigner = Credentials.create(environment.getProperty("lbgPrivateKey"));
 
-           String key =Hash.sha3(
-                  TypeEncoder.encode(new org.web3j.abi.datatypes.Address(addkeyDto.getKey()))
-           );
+            String key = Hash.sha3(
+                    TypeEncoder.encode(new org.web3j.abi.datatypes.Address(addkeyDto.getKey()))
+            );
 
-           byte[] keyBytes = Numeric.hexStringToByteArray(key);
-           // 2. Load the Identity contract
-           Identity identity = Identity.load(
-                   addkeyDto.getIdentityAddress(),
-                   web3j,
-                   managementSigner,
-                   new DefaultGasProvider()
-           );
+            byte[] keyBytes = Numeric.hexStringToByteArray(key);
+            // 2. Load the Identity contract
+            Identity identity = Identity.load(
+                    addkeyDto.getIdentityAddress(),
+                    web3j,
+                    managementSigner,
+                    new DefaultGasProvider()
+            );
 
-           // 3. Call addKey on the contract
-           TransactionReceipt tx = identity.addKey(
-                   keyBytes, // Should be a 32-byte hex string (keccak256 hash)
-                   BigInteger.valueOf(addkeyDto.getPurpose()),
-                   BigInteger.valueOf(addkeyDto.getKeyType())
-           ).send();
+            // 3. Call addKey on the contract
+            TransactionReceipt tx = identity.addKey(
+                    keyBytes, // Should be a 32-byte hex string (keccak256 hash)
+                    BigInteger.valueOf(addkeyDto.getPurpose()),
+                    BigInteger.valueOf(addkeyDto.getKeyType())
+            ).send();
 
-           addKeyResponseDto.setMessage("Key added successfully");
-              addKeyResponseDto.setTransactionReceipt(tx);
-       } catch(Exception e) {
-           throw new RuntimeException("Failed to add key: " + e.getMessage(), e);
-       }
-       return ResponseEntity.ok(addKeyResponseDto);
+            addKeyResponseDto.setMessage("Key added successfully");
+            addKeyResponseDto.setTransactionReceipt(tx);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add key: " + e.getMessage(), e);
+        }
+        return ResponseEntity.ok(addKeyResponseDto);
     }
 
 
@@ -842,6 +833,7 @@ public class TokenServiceImpl implements TokenService {
         signature[64] = v; // v is always 1 byte
         return Numeric.toHexString(signature);
     }
+
     public static BigInteger topicToUint256(String topic) {
         String hash = Hash.sha3String(topic);
         return new BigInteger(hash.substring(2), 16);
